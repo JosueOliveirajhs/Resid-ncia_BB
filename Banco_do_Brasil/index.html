@@ -59,9 +59,12 @@
         <div class="progress-bar">
           <div class="progress-wrapper">
             <progress id="barraProgresso" value="0" max="100"></progress>
-            <div><img class="progressImagens presente" data-index="0" src="assets/balao_surpresa.png" alt="Presente"></div>
-            <div><img class="progressImagens presente" data-index="1" src="assets/balao_surpresa.png" alt="Presente"></div>
-            <div><img class="progressImagens presente" data-index="2" src="assets/balao_surpresa.png" alt="Presente"></div>
+            <div><img class="progressImagens presente" data-index="0" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
+            <div><img class="progressImagens presente" data-index="1" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
+            <div><img class="progressImagens presente" data-index="2" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
           </div>
         </div>
       </div>
@@ -140,10 +143,16 @@
   </div>
 
   <script>
-    // Configurações do sistema
+
     const config = {
       incremento: 20,
-      marcos: [20, 50, 75, 100],
+      niveis: [
+        { nome: "1: Arara-vermelha-grande", img: 'assets/logo_20%.png', meta: 1 },
+        { nome: "2: Mico-leão-dourado", img: 'assets/logo_40%.png', meta: 2 },
+        { nome: "3: Onça-pintada", img: 'assets/logo_60%.png', meta: 3 },
+        { nome: "4: Garoupa", img: 'assets/logo_80%.png', meta: 4 },
+        { nome: "5: Lobo-Guará", img: 'assets/logo_100%.png', meta: 5 }
+      ],
       presenteMarcos: [20, 50, 75],
       recompensas: [
         { img: 'assets/prata.png', mensagem: 'Você ganhou um badge de Prata!' },
@@ -152,7 +161,6 @@
       ]
     };
 
-    // Estado da aplicação
     const state = {
       progressoAtual: 0,
       tarefasConcluidas: Array(5).fill(false),
@@ -160,10 +168,11 @@
       presentesAbertos: [false, false, false],
       semanaAtual: 0,
       semanasCompletas: 0,
-      tarefasConcluidasNaSemana: 0
+      tarefasConcluidasNaSemana: 0,
+      nivelAtual: { nome: "Inicial", img: 'assets/logo_0%.png', meta: 1 },
+      nivelAnterior: null
     };
 
-    // Lista de tarefas por semana
     const tarefasPorSemana = [
       [
         "Implementar login",
@@ -188,132 +197,215 @@
       ]
     ];
 
-    // Elementos DOM
     const progresso = document.getElementById('barraProgresso');
     const presentes = document.querySelectorAll('.presente');
     const weeklyProgressIcon = document.getElementById('weekly-progress-icon');
 
-    // Carrega progresso salvo
+    function init() {
+      carregarProgresso();
+      setupEventListeners();
+      atualizarUI();
+    }
+
     function carregarProgresso() {
       const salvo = localStorage.getItem('progressoBB');
       if (salvo) {
-        const dados = JSON.parse(salvo);
-        state.semanasCompletas = dados.semanasCompletas || 0;
-        state.semanaAtual = dados.semanaAtual || 0;
-        atualizarIconeHeader();
+        try {
+          const dados = JSON.parse(salvo);
+          Object.assign(state, dados);
+          state.nivelAtual = obterNivelAtual(state.semanasCompletas);
+          state.nivelAnterior = state.nivelAtual;
+        } catch (e) {
+          console.error("Erro ao carregar progresso:", e);
+          localStorage.removeItem('progressoBB');
+        }
       }
     }
 
-    // Salva progresso
     function salvarProgresso() {
-      localStorage.setItem('progressoBB', JSON.stringify({
+      const dadosParaSalvar = {
         semanasCompletas: state.semanasCompletas,
-        semanaAtual: state.semanaAtual
-      }));
+        semanaAtual: state.semanaAtual,
+        progressoAtual: state.progressoAtual,
+        presentesDesbloqueados: state.presentesDesbloqueados,
+        presentesAbertos: state.presentesAbertos,
+        nivelAtual: state.nivelAtual,
+        nivelAnterior: state.nivelAnterior,
+        tarefasConcluidas: state.tarefasConcluidas,
+        tarefasConcluidasNaSemana: state.tarefasConcluidasNaSemana
+      };
+      localStorage.setItem('progressoBB', JSON.stringify(dadosParaSalvar));
     }
 
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', () => {
-      carregarProgresso();
+    function setupEventListeners() {
       presentes.forEach((presente, index) => {
         presente.addEventListener('click', () => abrirPresente(index));
       });
-    });
+    }
 
-    function toggleDropdown(dropdownId) {
-      const dropdown = document.getElementById(dropdownId);
-      const container = dropdown.closest('.dropdown-container');
+    function atualizarUI() {
+      atualizarBarraProgresso();
+      atualizarIconeHeader();
+      atualizarPresentes();
+      atualizarTarefasUI();
+    }
 
-      document.querySelectorAll('.dropdown-container').forEach(item => {
-        if (item !== container) {
-          item.classList.remove('dropdown-active');
-        }
-      });
+    function atualizarBarraProgresso() {
+      if (progresso) {
+        progresso.value = state.progressoAtual;
+      }
+    }
 
-      container.classList.toggle('dropdown-active');
+    function atualizarIconeHeader() {
+      if (!weeklyProgressIcon) return;
 
-      document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
-          container.classList.remove('dropdown-active');
-        }
-      }, { once: true });
+      weeklyProgressIcon.src = state.nivelAtual.img;
+      weeklyProgressIcon.alt = `Nível: ${state.nivelAtual.nome}`;
+
+      const weeklyProgressElement = document.querySelector('.weekly-progress');
+      if (weeklyProgressElement) {
+        weeklyProgressElement.setAttribute('data-progress', `Nível ${state.nivelAtual.nome}`);
+      }
     }
 
     function atualizarPresentes() {
       presentes.forEach((presente, index) => {
-        if (state.progressoAtual >= config.presenteMarcos[index] && !state.presentesAbertos[index]) {
-          if (!state.presentesDesbloqueados[index]) {
+        if (!presente) return;
+
+        const marcoAlcancado = state.progressoAtual >= config.presenteMarcos[index];
+
+        if (marcoAlcancado) {
+          if (state.presentesAbertos[index]) {
+            presente.src = config.recompensas[index].img;
+            presente.classList.remove('presente-desbloqueado');
+          } else {
             presente.src = "assets/presente_bloqueado.png";
             presente.classList.add('presente-desbloqueado');
             state.presentesDesbloqueados[index] = true;
           }
-        } else if (state.presentesAbertos[index]) {
-          presente.src = config.recompensas[index].img;
+        } else {
+          presente.src = "assets/balao_surpresa.png";
           presente.classList.remove('presente-desbloqueado');
+          state.presentesDesbloqueados[index] = false;
         }
       });
     }
 
+    function atualizarTarefasUI() {
+      const dropdownContent = document.getElementById('tasksDropdown');
+      if (!dropdownContent) return;
+
+      const questsContainer = dropdownContent.querySelector('.questsInAndament');
+      if (!questsContainer) return;
+
+      questsContainer.innerHTML = tarefasPorSemana[state.semanaAtual]
+        .map((tarefa, index) => `
+      <label class="checkbox-task">
+        <input type="checkbox" 
+               onchange="concluirTarefa(this, ${index})" 
+               ${state.tarefasConcluidas[index] ? 'checked disabled' : ''} />
+        <span>${tarefa}</span>
+      </label>
+    `).join('');
+    }
+
+    function obterNivelAtual(semanasCompletas) {
+      let nivelAtual = config.niveis[0];
+      for (const nivel of config.niveis) {
+        if (semanasCompletas >= nivel.meta) {
+          nivelAtual = nivel;
+        } else {
+          break;
+        }
+      }
+      return nivelAtual;
+    }
+
+    function getMensagemNivel(nivel) {
+      const mensagens = {
+        "Arara-vermelha-grande": "Você está começando sua jornada, assim como a garoupa no fundo do mar!",
+        "Mico-leão-dourado": "Voando mais alto, assim como a arara pelos céus do Brasil!",
+        "Onça-pintada": "Poderoso como a onça-pintada, você está no caminho certo!",
+        "Garoupa": "Grande e imponente como o mero, suas conquistas são notáveis!",
+        "Lobo-Guará": "Majestoso como o lobo-guará, você atingiu o nível máximo!"
+      };
+      return mensagens[nivel] || "Continue progredindo para alcançar novos níveis!";
+    }
+
     function abrirPresente(index) {
-      if (state.presentesDesbloqueados[index] && !state.presentesAbertos[index]) {
-        state.presentesAbertos[index] = true;
-        const recompensa = config.recompensas[index];
-        
+      if (!state.presentesDesbloqueados[index]) {
+        mostrarMensagemPresenteNaoDesbloqueado(index);
+        return;
+      }
+
+      if (state.presentesAbertos[index]) {
+        mostrarMensagemPresenteJaAberto(index);
+        return;
+      }
+
+      abrirPresenteComEfeitos(index);
+    }
+
+    function mostrarMensagemPresenteNaoDesbloqueado(index) {
+      Swal.fire({
+        title: 'Continue progredindo!',
+        text: `Complete mais ${config.presenteMarcos[index] - state.progressoAtual}% para desbloquear este presente.`,
+        icon: 'info',
+        confirmButtonText: 'Vamos lá!'
+      });
+    }
+
+    function mostrarMensagemPresenteJaAberto(index) {
+      const recompensa = config.recompensas[index];
+      Swal.fire({
+        title: 'Recompensa já resgatada',
+        text: recompensa.mensagem,
+        imageUrl: recompensa.img,
+        imageWidth: 150,
+        imageHeight: 150,
+        imageAlt: 'Recompensa',
+        confirmButtonText: 'Entendi'
+      });
+    }
+
+    function abrirPresenteComEfeitos(index) {
+      state.presentesAbertos[index] = true;
+      const recompensa = config.recompensas[index];
+
+      if (presentes[index]) {
         presentes[index].src = recompensa.img;
         presentes[index].classList.remove('presente-desbloqueado');
-        
-        const confettiConfig = {
-          particleCount: 150,
-          spread: 70,
-          origin: { 
-            x: (config.presenteMarcos[index] / 100) * 0.8 + 0.1,
-            y: 0.6
-          }
-        };
-        
-        if (index === 1) {
-          confettiConfig.particleCount = 200;
-          confettiConfig.spread = 100;
-          confettiConfig.colors = ['#FFD700', '#C0C0C0', '#FFFFFF'];
-        }
-        
-        confetti(confettiConfig);
-        
-        Swal.fire({
-          title: 'Presente aberto! 🎁',
-          text: recompensa.mensagem,
-          imageUrl: recompensa.img,
-          imageWidth: 150,
-          imageHeight: 150,
-          imageAlt: 'Recompensa',
-          confirmButtonText: 'Obrigado!'
-        });
-        
-        atualizarPresentes();
-      } else if (!state.presentesDesbloqueados[index]) {
-        Swal.fire({
-          title: 'Continue progredindo!',
-          text: `Complete mais ${config.presenteMarcos[index] - state.progressoAtual}% para desbloquear este presente.`,
-          icon: 'info',
-          confirmButtonText: 'Vamos lá!'
-        });
-      } else if (state.presentesAbertos[index]) {
-        const recompensa = config.recompensas[index];
-        Swal.fire({
-          title: 'Recompensa já resgatada',
-          text: recompensa.mensagem,
-          imageUrl: recompensa.img,
-          imageWidth: 150,
-          imageHeight: 150,
-          imageAlt: 'Recompensa',
-          confirmButtonText: 'Entendi'
-        });
       }
+
+      const confettiConfig = {
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      };
+
+      if (index === 1) {
+        confettiConfig.particleCount = 200;
+        confettiConfig.spread = 100;
+        confettiConfig.colors = ['#FFD700', '#C0C0C0', '#FFFFFF'];
+      }
+
+      confetti(confettiConfig);
+
+      Swal.fire({
+        title: 'Presente aberto! 🎁',
+        text: recompensa.mensagem,
+        imageUrl: recompensa.img,
+        imageWidth: 150,
+        imageHeight: 150,
+        imageAlt: 'Recompensa',
+        confirmButtonText: 'Obrigado!'
+      });
+
+      salvarProgresso();
     }
 
     function concluirTarefa(checkbox, index) {
       if (state.tarefasConcluidas[index]) {
-        Swal.fire('Tarefa já concluída!', 'Esta tarefa já foi finalizada anteriormente.', 'info');
         checkbox.checked = true;
         return;
       }
@@ -335,16 +427,20 @@
           state.tarefasConcluidas[index] = true;
           state.tarefasConcluidasNaSemana++;
           state.progressoAtual += config.incremento;
-          
+
           checkbox.disabled = true;
-          progresso.value = state.progressoAtual;
-          atualizarPresentes();
-          verificarMarcos();
-          
+          atualizarUI();
+          salvarProgresso();
+
           if (state.tarefasConcluidasNaSemana === tarefasPorSemana[state.semanaAtual].length) {
+            const nivelAntes = state.nivelAtual;
             state.semanasCompletas++;
-            atualizarIconeHeader();
-            salvarProgresso();
+            state.nivelAtual = obterNivelAtual(state.semanasCompletas);
+
+            if (nivelAntes.nome !== state.nivelAtual.nome) {
+              mostrarMensagemNovoNivel(state.nivelAtual);
+            }
+
             celebrarConclusaoSemanal();
           }
         } else {
@@ -372,46 +468,30 @@
       });
     }
 
-    function verificarMarcos() {
-      config.marcos.forEach(marco => {
-        if (state.progressoAtual >= marco && state.progressoAtual - config.incremento < marco) {
-          let confettiConfig = {
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          };
-          
-          if (marco >= 75) {
-            confettiConfig.particleCount = 150;
-            confettiConfig.colors = ['#FFD700', '#FFFFFF', '#0571d3'];
-          }
-          
-          confetti(confettiConfig);
-          
-          Swal.fire({
-            title: 'Marco alcançado! 🏆',
-            html: `<p>Você atingiu <strong>${marco}%</strong> do seu objetivo!</p>
-                  <p style="font-size: 0.9em; margin-top: 10px;">Continue assim!</p>`,
-            icon: 'success',
-            confirmButtonColor: '#0571d3',
-            confirmButtonText: 'Rumo aos 100%!'
-          });
-        }
-      });
-    }
+    function mostrarMensagemNovoNivel(nivel) {
+      const confettiConfig = {
+        particleCount: 100 + (nivel.meta * 50),
+        spread: 70,
+        origin: { y: 0.6 }
+      };
 
-    function atualizarIconeHeader() {
-      const porcentagemTotal = Math.min(state.semanasCompletas * 20, 100);
-      const icone = `logo_${porcentagemTotal}%.png`;
-      
-      weeklyProgressIcon.src = `assets/${icone}`;
-      weeklyProgressIcon.alt = `Progresso: ${porcentagemTotal}%`;
-      document.querySelector('.weekly-progress').setAttribute('data-progress', `${porcentagemTotal}% concluído`);
-      
-      weeklyProgressIcon.classList.add('destaque-icone');
-      setTimeout(() => {
-        weeklyProgressIcon.classList.remove('destaque-icone');
-      }, 1000);
+      if (nivel.meta >= 4) {
+        confettiConfig.colors = ['#FFD700', '#FFFFFF', '#0571d3'];
+      }
+
+      confetti(confettiConfig);
+
+      Swal.fire({
+        title: `Novo nível alcançado! 🎉`,
+        html: `<p>Você atingiu o nível <strong>${nivel.nome}</strong>!</p>
+          <img src="${nivel.img}" style="width: 150px; margin: 15px auto;">
+          <p style="font-size: 0.9em;">${getMensagemNivel(nivel.nome)}</p>`,
+        icon: 'success',
+        confirmButtonColor: '#0571d3',
+        confirmButtonText: 'Continuar evoluindo!'
+      });
+
+      salvarProgresso();
     }
 
     function celebrarConclusaoSemanal() {
@@ -420,13 +500,13 @@
         spread: 100,
         origin: { y: 0.3 }
       });
-      
+
       Swal.fire({
         title: 'Semana concluída! 🎉',
         html: `<p>Parabéns! Você completou todas as tarefas desta semana!</p>
-              <p>Semanas completas: <strong>${state.semanasCompletas}/5</strong></p>
-              <img src="assets/logo_${Math.min(state.semanasCompletas * 20, 100)}%.png" 
-                   style="width: 100px; margin: 20px auto;">`,
+          <p>Nível atual <strong>${state.nivelAtual.nome}</strong></p>
+          <img src="${state.nivelAtual.img}" style="width: 100px; margin: 20px auto;">
+          <p>${getMensagemNivel(state.nivelAtual.nome)}</p>`,
         confirmButtonText: 'Iniciar nova semana!',
         confirmButtonColor: '#0571d3'
       }).then(() => {
@@ -441,25 +521,35 @@
       state.progressoAtual = 0;
       state.presentesDesbloqueados = [false, false, false];
       state.presentesAbertos = [false, false, false];
-      
-      progresso.value = 0;
-      
-      const dropdownContent = document.getElementById('tasksDropdown');
-      const novasTarefasHTML = tarefasPorSemana[state.semanaAtual]
-        .map((tarefa, index) => `
-          <label class="checkbox-task">
-            <input type="checkbox" onchange="concluirTarefa(this, ${index})" />
-            <span>${tarefa}</span>
-          </label>
-        `).join('');
-      
-      dropdownContent.querySelector('.questsInAndament').innerHTML = novasTarefasHTML;
-      
-      document.querySelectorAll('.presente').forEach(presente => {
-        presente.src = "assets/balao_surpresa.png";
-        presente.classList.remove('presente-desbloqueado');
-      });
+
+      atualizarUI();
+      salvarProgresso();
     }
+
+    function toggleDropdown(dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
+      if (!dropdown) return;
+
+      const container = dropdown.closest('.dropdown-container');
+      if (!container) return;
+
+      document.querySelectorAll('.dropdown-container').forEach(item => {
+        if (item !== container) {
+          item.classList.remove('dropdown-active');
+        }
+      });
+
+      container.classList.toggle('dropdown-active');
+
+      document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+          container.classList.remove('dropdown-active');
+        }
+      }, { once: true });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
   </script>
 </body>
 </html>
