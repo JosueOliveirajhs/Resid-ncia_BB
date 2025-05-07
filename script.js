@@ -51,8 +51,7 @@ function carregarProgresso() {
     try {
       const dados = JSON.parse(salvo);
       Object.assign(state, dados);
-      
-      // Garante que o nível atual está correto
+    
       state.nivelAtual = obterNivelAtual(state.semanasCompletas);
       state.nivelAnterior = state.nivelAtual;
       state.ultimoProgressoVerificado = state.progressoAtual;
@@ -122,8 +121,6 @@ function verificarMarcos() {
           colors: ['#FFD700', '#0571d3', '#FFFFFF']
         });
       }
-
-      // Notificação toast temporária
       Swal.fire({
         title: `🎉 Marco de ${marco}% alcançado!`,
         text: 'Você desbloqueou um novo presente!',
@@ -295,51 +292,71 @@ function abrirPresenteComEfeitos(index) {
 
 function concluirTarefa(checkbox, index) {
   const nivelMaximo = config.niveis[config.niveis.length - 1];
+  
   if (state.semanasCompletas >= nivelMaximo.meta) {
-    Swal.fire({
-      title: 'Parabéns!',
-      text: 'Você já atingiu o nível máximo!',
-      icon: 'info'
-    });
-    return;
+      Swal.fire({
+          title: 'Parabéns!',
+          text: 'Você já atingiu o nível máximo!',
+          icon: 'info'
+      });
+      return;
   }
-  Swal.fire({
-    title: 'Confirmar conclusão',
-    text: 'Deseja marcar esta tarefa como concluída?',
-    imageUrl: 'assets/Mascote_feliz.png',
-    imageWidth: 200,
-    showCancelButton: true,
-    confirmButtonColor: '#0571d3',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Sim, concluir!'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      state.tarefasConcluidas[index] = true;
-      state.tarefasConcluidasNaSemana++;
-      state.progressoAtual += config.incremento;
-      checkbox.disabled = true;
-      
-      registrarAtividade('tarefa', `Concluída: ${tarefasPorSemana[state.semanaAtual][index]}`);
-      
-      atualizarUI();
-      verificarMarcos();
-      salvarProgresso();
 
-      if (state.tarefasConcluidasNaSemana === tarefasPorSemana[state.semanaAtual].length) {
-        const nivelAntes = state.nivelAtual;
-        state.semanasCompletas++;
-        state.nivelAtual = obterNivelAtual(state.semanasCompletas);
-        
-        if (nivelAntes.nome !== state.nivelAtual.nome) {
-          mostrarMensagemNovoNivel(state.nivelAtual);
-          registrarAtividade('nivel', `Alcançado: ${state.nivelAtual.nome}`);
-        }
-        
-        celebrarConclusaoSemanal();
+  Swal.fire({
+      title: 'Confirmar conclusão',
+      text: 'Deseja marcar esta tarefa como concluída?',
+      imageUrl: 'assets/Mascote_feliz.png',
+      imageWidth: 200,
+      showCancelButton: true,
+      confirmButtonColor: '#0571d3',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, concluir!'
+  }).then((result) => {
+      if (result.isConfirmed) {
+          state.tarefasConcluidas[index] = true;
+          state.tarefasConcluidasNaSemana++;
+          state.progressoAtual += config.incremento;
+          checkbox.disabled = true;
+          
+          registrarAtividade('tarefa', `Concluída: ${tarefasPorSemana[state.semanaAtual][index]}`);
+          
+          atualizarUI();
+          verificarMarcos();
+          salvarProgresso();
+
+          if (state.tarefasConcluidasNaSemana === tarefasPorSemana[state.semanaAtual].length) {
+              const nivelAntes = state.nivelAtual;
+              state.semanasCompletas++;
+              state.nivelAtual = obterNivelAtual(state.semanasCompletas);
+              
+              if (nivelAntes.nome !== state.nivelAtual.nome) {
+                  mostrarMensagemNovoNivel(state.nivelAtual);
+                  registrarAtividade('nivel', `Alcançado: ${state.nivelAtual.nome}`);
+              }
+              
+              celebrarConclusaoSemanal();
+          }
+      } else {
+          Swal.fire({
+              title: 'Ops! 😢',
+              text: 'Você realmente deseja cancelar esta tarefa?',
+              imageUrl: 'assets/Mascote-triste.png',
+              imageWidth: 200,
+              imageAlt: 'Mascote triste',
+              showCancelButton: true,
+              confirmButtonColor: '#0571d3',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Não, quero concluir!',
+              cancelButtonText: 'Sim, cancelar'
+          }).then((secondResult) => {
+              if (secondResult.isConfirmed) {
+                  checkbox.checked = true;
+                  concluirTarefa(checkbox, index);
+              } else {
+                  checkbox.checked = false;
+              }
+          });
       }
-    } else {
-      checkbox.checked = false;
-    }
   });
 }
 
