@@ -8,14 +8,14 @@ const config = {
     { nome: "5: Mico-leão-dourado", img: 'assets/logo_100.png', meta: 5 }
   ],
   emblemasNivel: [
-    { nivel: 1, img: 'assets/Emblema_nivel1.png', desbloqueado: false, mostrado: false },
-    { nivel: 2, img: 'assets/Emblema_nivel2.png', desbloqueado: false, mostrado: false },
-    { nivel: 3, img: 'assets/Emblema_nivel3.png', desbloqueado: false, mostrado: false },
-    { nivel: 4, img: 'assets/Emblema_nivel4.png', desbloqueado: false, mostrado: false },
-    { nivel: 5, img: 'assets/Emblema_nivel5.png', desbloqueado: false, mostrado: false },
-    { nivel: 6, img: 'assets/Emblema_nivel6.png', desbloqueado: false, mostrado: false },
-    { nivel: 7, img: 'assets/Emblema_nivel7.png', desbloqueado: false, mostrado: false },
-    { nivel: 8, img: 'assets/Emblema_nivel8.png', desbloqueado: false, mostrado: false }
+    { nivel: 1, img: 'assets/Emblema_Nivel1.png', desbloqueado: false, mostrado: false },
+    { nivel: 2, img: 'assets/Emblema_Nivel2.png', desbloqueado: false, mostrado: false },
+    { nivel: 3, img: 'assets/Emblema_Nivel3.png', desbloqueado: false, mostrado: false },
+    { nivel: 4, img: 'assets/Emblema_Nivel4.png', desbloqueado: false, mostrado: false },
+    { nivel: 5, img: 'assets/Emblema_Nivel5.png', desbloqueado: false, mostrado: false },
+    { nivel: 6, img: 'assets/Emblema_Nivel6.png', desbloqueado: false, mostrado: false },
+    { nivel: 7, img: 'assets/Emblema_Nivel7.png', desbloqueado: false, mostrado: false },
+    { nivel: 8, img: 'assets/Emblema_Nivel8.png', desbloqueado: false, mostrado: false }
   ],
   presenteMarcos: [20, 50, 75],
   recompensas: [
