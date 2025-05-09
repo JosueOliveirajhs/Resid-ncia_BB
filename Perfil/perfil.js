@@ -1,15 +1,25 @@
 const config = {
     niveis: [
-        { nome: "1: Arara-vermelha-grande", img: '../assets/logo_20%.png', meta: 1, descricao: "Você está começando sua jornada!" },
-        { nome: "2: Mico-leão-dourado", img: '../assets/logo_40%.png', meta: 2, descricao: "Voando mais alto!" },
-        { nome: "3: Onça-pintada", img: '../assets/logo_60%.png', meta: 3, descricao: "Poderoso como a onça-pintada!" },
-        { nome: "4: Garoupa", img: '../assets/logo_80%.png', meta: 4, descricao: "Grande e imponente!" },
-        { nome: "5: Lobo-Guará", img: '../assets/logo_100%.png', meta: 5, descricao: "Você atingiu o nível máximo!" }
+        { nome: "1: Beija-flor", img: '../assets/logo_20.png', meta: 1, descricao: "Você está começando sua jornada!" },
+        { nome: "2: Tartaruga-de-pente", img: '../assets/logo_40.png', meta: 2, descricao: "Voando mais alto!" },
+        { nome: "3: Garça", img: '../assets/logo_60.png', meta: 3, descricao: "Poderoso como a onça-pintada!" },
+        { nome: "4: Arara-vermelha-grande", img: '../assets/logo_80.png', meta: 4, descricao: "Grande e imponente!" },
+        { nome: "5: Mico-leão-dourado", img: '../assets/logo_100.png', meta: 5, descricao: "Você atingiu o nível máximo!" }
     ],
     recompensas: [
         { img: '../assets/prata.png', mensagem: 'Você ganhou um badge de Prata!' },
         { img: '../assets/ouro.png', mensagem: 'Você ganhou um badge de Ouro!' },
         { img: '../assets/balao_icon.png', mensagem: 'Você desbloqueou uma recompensa especial!' }
+    ],
+    emblemasNivel: [
+        { nivel: 1, img: '../assets/Banner_Nivel1.png' },
+        { nivel: 2, img: '../assets/Banner_Nivel2.png' },
+        { nivel: 3, img: '../assets/Banner_Nivel3.png' },
+        { nivel: 4, img: '../assets/Banner_Nivel4.png' },
+        { nivel: 5, img: '../assets/Banner_Nivel5.png' },
+        { nivel: 6, img: '../assets/Banner_Nivel6.png' },
+        { nivel: 7, img: '../assets/Banner_Nivel7.png' },
+        { nivel: 8, img: '../assets/Banner_Nivel8.png' }
     ]
 };
 
@@ -22,7 +32,7 @@ function obterNivelAtual(semanasCompletas) {
     for (let i = 0; i < config.niveis.length; i++) {
         if (semanasCompletas < config.niveis[i].meta) {
             return i === 0 ? 
-                { nome: "0: Iniciante", img: 'assets/logo_0%.png', meta: 0 } : 
+                { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 } : 
                 config.niveis[i - 1];
         }
     }
@@ -33,7 +43,7 @@ function obterNivelAtual(semanasCompletas) {
 function sincronizarComPrincipal() {
     const dadosPrincipal = JSON.parse(localStorage.getItem('progressoBB')) || {
         semanasCompletas: 0,
-        nivelAtual: { nome: "0: Iniciante", img: 'assets/logo_0%.png', meta: 0 },
+        nivelAtual: { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 },
         tarefasConcluidas: [],
         presentesAbertos: [],
         progressoAtual: 0
@@ -49,6 +59,7 @@ function sincronizarComPrincipal() {
     atualizarEstatisticas(dadosPrincipal);
     carregarConquistas(dadosPrincipal);
 }
+
 function atualizarNivelPerfil(dados) {
     const nivelElement = document.querySelector('.nivel');
     if (nivelElement) {
@@ -62,6 +73,7 @@ function atualizarNivelPerfil(dados) {
 
 function carregarConquistas(dados) {
     const nivelMaximo = config.niveis[config.niveis.length - 1];
+    
     const conquistas = [
         { id: 1, titulo: "Primeiros Passos", descricao: "Complete sua primeira tarefa", icone: "fas fa-star", desbloqueada: dados.tarefasConcluidas.length > 0 },
         { id: 2, titulo: "Colecionador", descricao: "Resgate seu primeiro presente", icone: "fas fa-gift", desbloqueada: dados.presentesAbertos.some(p => p) },
@@ -69,14 +81,41 @@ function carregarConquistas(dados) {
         { id: 4, titulo: "Produtividade", descricao: "Complete 5 tarefas em um dia", icone: "fas fa-bolt", desbloqueada: false },
         { id: 5, titulo: "Mestre Supremo", descricao: "Alcance o nível máximo", icone: "fas fa-crown", desbloqueada: dados.semanasCompletas >= nivelMaximo.meta }
     ];
+
+    config.emblemasNivel.forEach(emblema => {
+        const nivelAlvo = emblema.nivel;
+        conquistas.push({
+            id: 100 + nivelAlvo,
+            titulo: `Nível ${nivelAlvo}`,
+            descricao: `Alcance o nível ${nivelAlvo}`,
+            icone: "fas fa-medal",
+            desbloqueada: dados.nivelAtual.meta >= nivelAlvo,
+            emblema: emblema.img
+        });
+    });
+
     const container = document.querySelector('.conquistas-container');
     if (!container) return;
     container.innerHTML = '';
+    
+    // Ordenar conquistas: emblemas de nível primeiro, depois outras conquistas
+    conquistas.sort((a, b) => {
+        if (a.id > 100 && b.id > 100) return a.id - b.id; // Ordenar emblemas por nível
+        if (a.id > 100) return -1; // Emblemas primeiro
+        if (b.id > 100) return 1;
+        return a.id - b.id;
+    });
+
     conquistas.forEach(conquista => {
         const conquistaEl = document.createElement('div');
         conquistaEl.className = `conquista ${conquista.desbloqueada ? '' : 'bloqueada'}`;
+        
+        const iconeHTML = conquista.emblema 
+            ? `<img src="${conquista.emblema}" alt="Emblema Nível ${conquista.id - 100}" class="emblema-nivel">`
+            : `<i class="${conquista.icone}"></i>`;
+        
         conquistaEl.innerHTML = `
-            <i class="${conquista.icone}"></i>
+            ${iconeHTML}
             <h3>${conquista.titulo}</h3>
             <p>${conquista.descricao}</p>
             ${conquista.desbloqueada ? '<div class="badge-conquista"><i class="fas fa-check"></i> Conquistado</div>' : '<small>Não desbloqueada</small>'}
@@ -88,14 +127,23 @@ function carregarConquistas(dados) {
 function atualizarEstatisticas(dados) {
     document.getElementById('total-tarefas').textContent = dados.tarefasConcluidas.filter(t => t).length;
     const nivelMaximo = config.niveis[config.niveis.length - 1];
-    const conquistasDesbloqueadas = [
+    
+    // Conquistas padrão desbloqueadas
+    const conquistasPadraoDesbloqueadas = [
         dados.tarefasConcluidas.length > 0,
         dados.presentesAbertos.some(p => p),
         dados.nivelAtual.meta >= 2,
         false,
         dados.semanasCompletas >= nivelMaximo.meta
     ].filter(Boolean).length;
-    document.getElementById('total-conquistas').textContent = conquistasDesbloqueadas;
+    
+    // Emblemas de nível desbloqueados
+    const emblemasDesbloqueados = config.emblemasNivel
+        .filter(emblema => dados.nivelAtual.meta >= emblema.nivel)
+        .length;
+    
+    document.getElementById('total-conquistas').textContent = 
+        conquistasPadraoDesbloqueadas + emblemasDesbloqueados;
     
     const proximoNivel = config.niveis.find(n => n.meta > dados.nivelAtual.meta) || nivelMaximo;
     const semanasParaProximoNivel = proximoNivel.meta - dados.semanasCompletas;
@@ -143,6 +191,7 @@ function setupEventListeners() {
         }
     });
 }
+
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     sincronizarComPrincipal();

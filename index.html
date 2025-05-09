@@ -15,8 +15,8 @@
   <div class="container">
     <div class="left-side">
       <div class="perfil">
-        <img class="foto_perfil" src="assets/foto_perfil.png" alt="Foto de perfil" />
-        <h2>José Ferreira</h2>
+        <img class="foto_perfil" src="assets/foto_perfil.png" alt="Foto de perfil" title="Foto de perfil"/>
+        <h2 title="Nome de usuário">José Ferreira</h2>
       </div>
       <nav class="navegacao">
         <a href="index.html"><svg xmlns="http://www.w3.org/2000/svg" id="icones" width="16" height="16"
@@ -41,6 +41,7 @@
             <path fill-rule="evenodd"
               d="M0 0h1v15h15v1H0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5" />
           </svg>Investimentos</a>
+  
       </nav>
     </div>
 
@@ -48,18 +49,19 @@
       <header class="weekly-progress-header">
         <div class="header-links">
           <a href="#">Início</a>
-          <a href="Perfil/perfil.html">Relatórios</a>
+          <a href="Perfil/perfil.html" title="Acessar perfil de usuário">Perfil</a>
           <a href="#">Configurações</a>
         </div>
-        <div class="weekly-progress" data-progress="0% concluído">
-          <img id="weekly-progress-icon" src="assets/logo_0%.png" alt="Progresso Semanal">
+        <div id="emblemas-container"></div>
+        <div class="weekly-progress" data-progress="0% concluído" title="Progresso semanal">
+          <img id="weekly-progress-icon" src="assets/logo_0.png" alt="Progresso Semanal">
         </div>
       </header>
 
       <div class="right-side-uper">
         <div class="progress-bar">
           <div class="progress-wrapper">
-            <progress id="barraProgresso" value="0" max="100"></progress>
+            <progress id="barraProgresso" value="0" max="100" title="Progresso diário"></progress>
             <div><img class="progressImagens presente" data-index="0" src="assets/balao_surpresa.png" alt="Presente">
             </div>
             <div><img class="progressImagens presente" data-index="1" src="assets/balao_surpresa.png" alt="Presente">
@@ -72,12 +74,12 @@
 
       <div class="right-side-lower">
         <div class="quests">
-          <div class="dropdown-container">
-            <button class="dropdown-button" onclick="toggleDropdown('tasksDropdown')">
+          <div class="dropdown-container" >
+            <button class="dropdown-button" title="Acessar tarefas da semana" onclick="toggleDropdown('tasksDropdown')">
               <h3>Tarefas em andamento</h3>
               <img class="logo" src="assets/logo.jpg" alt="">
             </button>
-            <div class="dropdown-content" id="tasksDropdown">
+            <div class="dropdown-content" id="tasksDropdown" title="Tarefas diárias">
               <div class="questsInAndament">
                 <label class="checkbox-task">
                   <input type="checkbox" onchange="concluirTarefa(this, 0)" />
@@ -109,7 +111,7 @@
         </div>
 
         <div class="right-side-history">
-          <div class="questsHistory" id="questsHistory">
+          <div class="questsHistory" id="questsHistory" title="Acesse o perfil para mais detalhes">
             <h3>Prévia do histórico de tarefas</h3>
             <ul class="history-list">
               <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -137,7 +139,7 @@
         </div>
       </div>
       <div class="grafico">
-        <img src="assets/Grafico.jpeg" alt="">
+        <img src="assets/Grafico.jpeg" title="Grafico de progresso" alt="">
       </div>
     </div>
   </div>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" href="../assets/logo.jpg" type="image/x-icon" />
 </head>
+
 <body>
   <div class="container-perfil">
     <header class="perfil-header">
@@ -18,20 +20,24 @@
 
     <section class="info-usuario">
       <div class="avatar-container">
-        <img src="../assets/foto_perfil.png" alt="Avatar" class="avatar">
+        <img src="../assets/foto_perfil.png" class="foto_perfil" alt="">
         <div class="nivel-usuario">
-          <span>Progresso</span>
-          <div class="weekly-progress" data-progress="0% concluído">
-          </div>
+          <span>Foto de perfil</span>
         </div>
       </div>
-      
+
       <div class="dados-usuario">
         <h2>José Ferreira</h2>
         <p><i class="fas fa-envelope"></i> jose.ferreira@email.com</p>
         <p><i class="fas fa-calendar-alt"></i> Membro desde: 15/03/2023</p>
       </div>
     </section>
+    <div class="logo">
+    <img class="avatar">
+    <span>Progresso semanal</span>
+   </div>
+    <div class="weekly-progress" data-progress="0% concluído">
+    </div>
     <section class="estatisticas-rapidas">
       <div class="estatistica">
         <i class="fas fa-tasks"></i>
@@ -64,10 +70,11 @@
 
     <div class="conteudo-abas">
       <div id="conquistas" class="conteudo-aba ativa">
+        
         <div class="conquistas-container">
         </div>
       </div>
-      
+
       <div id="historico" class="conteudo-aba">
         <div class="filtros-historico">
           <select id="filtro-mes">
@@ -77,7 +84,7 @@
         <div class="timeline-historico" id="timeline-historico">
         </div>
       </div>
-    
+
       <div id="config" class="conteudo-aba">
         <div class="config-item">
           <label for="notificacoes">Notificações</label>
@@ -91,6 +98,7 @@
   </div>
 
   <script src="perfil.js"></script>
-  
+
 </body>
+
 </html>

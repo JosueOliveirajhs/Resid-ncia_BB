@@ -60,7 +60,26 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   }
   
+  .foto_perfil{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .logo{
+    align-items: center;
+    flex-direction: column;
+    display: flex;
+    margin: 20px 5px;
+    background-color: #ffffff;
+    width: 1200px;
+    border-radius: 20px;
+    color: #333;
+  }
+  
   .avatar {
+    margin: 10px 5px;
     width: 120px;
     height: 120px;
     border-radius: 50%;
@@ -99,7 +118,71 @@
   .dados-usuario i {
     color: #0571d3;
   }
-  
+  .conquista {
+    position: relative;
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin: 1px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    width: 250px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.conquista.bloqueada {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.emblema-nivel {
+    width: 200px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.conquista.bloqueada .emblema-nivel {
+    filter: grayscale(100%);
+    opacity: 0.6;
+}
+
+.badge-conquista {
+    background-color: #fcfb33;
+    color: #0571d3;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.conquista h3 {
+    margin: 10px 0 5px;
+    font-size: 1.1em;
+}
+
+.conquista p {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.conquista.bloqueada p {
+    color: #adb5bd;
+}
+
+.conquista small {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.conquistas-container {
+    text-align: center;
+    padding: 20px;
+}
   .estatisticas-rapidas {
     display: flex;
     justify-content: space-around;
@@ -333,6 +416,28 @@
   
   /* Responsividade */
   @media (max-width: 768px) {
+
+    
+    .conquista {
+      position: relative;
+      text-align: center;
+      padding: 15px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      margin: 1px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      width: 126px;
+      display: inline-block;
+      vertical-align: top;
+  }
+
+    .emblema-nivel {
+      width: 100px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 5px;
+  }
     .container-perfil {
       padding: 1rem;
     }
