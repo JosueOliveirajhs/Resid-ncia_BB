@@ -437,11 +437,39 @@ progress::-webkit-progress-value {
 }
 
 @media (max-width: 768px) {
+
+  .emblema-notificacao {
+  position: fixed;
+  top: 57px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  animation: pulse 2s infinite;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s;
+  filter: drop-shadow(0 0 5px gold);
+}
+
   .weekly-progress img {
     width: 35px;
     height: 35px;
     transition: all 0.3s ease;
+    margin-left: 30%;
   }
+  
+  .weekly-progress::after {
+  content: attr(data-progress);
+  position: absolute;
+  bottom: -20px;
+  left: 55%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #0033A0;
+  white-space: nowrap;
+}
+
   .weekly-progress{
     height: 2.5rem;
   }
@@ -522,6 +550,7 @@ progress::-webkit-progress-value {
 
 @media (min-width: 1024px) {
   
+
   .left-side {
     width: 20%;
   }
