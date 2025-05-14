@@ -414,10 +414,20 @@
     background-color: #f1f1f1;
   }
   
-  /* Responsividade */
+
   @media (max-width: 768px) {
 
-    
+    .logo{
+    align-items: center;
+    flex-direction: column;
+    display: flex;
+    margin: 20px 5px;
+    background-color: #ffffff;
+    width: 380px;
+    border-radius: 20px;
+    color: #333;
+  }
+
     .conquista {
       position: relative;
       text-align: center;
