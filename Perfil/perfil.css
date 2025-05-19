@@ -1,0 +1,488 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+  }
+  .weekly-progress img {
+    width: 50px;
+    height: 50px;
+    transition: all 0.3s ease;
+  }
+  
+  .container-perfil {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #eeeded;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .perfil-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 2rem;
+  }
+  
+  .btn-voltar {
+    color: #0571d3;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-voltar:hover {
+    color: rgb(231, 233, 102);
+    transform: translateX(-3px);
+  }
+  
+  .perfil-header h1 {
+    color: #0571d3;
+    font-size: 1.8rem;
+  }
+  
+  .info-usuario {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 30px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  .foto_perfil{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .logo{
+    align-items: center;
+    flex-direction: column;
+    display: flex;
+    margin: 20px 5px;
+    background-color: #ffffff;
+    width: 1200px;
+    border-radius: 20px;
+    color: #333;
+  }
+  
+  .avatar {
+    margin: 10px 5px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .nivel-usuario {
+    background-color: #0571d3;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+  
+  .nivel-usuario .nivel {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  
+  .dados-usuario h2 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+  
+  .dados-usuario p {
+    color: #666;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .dados-usuario i {
+    color: #0571d3;
+  }
+  .conquista {
+    position: relative;
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin: 1px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    width: 250px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.conquista.bloqueada {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.emblema-nivel {
+    width: 200px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.conquista.bloqueada .emblema-nivel {
+    filter: grayscale(100%);
+    opacity: 0.6;
+}
+
+.badge-conquista {
+    background-color: #fcfb33;
+    color: #0571d3;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.conquista h3 {
+    margin: 10px 0 5px;
+    font-size: 1.1em;
+}
+
+.conquista p {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.conquista.bloqueada p {
+    color: #adb5bd;
+}
+
+.conquista small {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.conquistas-container {
+    text-align: center;
+    padding: 20px;
+}
+  .estatisticas-rapidas {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 1200px;
+    background-color: #fcfb33;
+    padding: 1.5rem;
+    border-radius: 30px;
+    margin-bottom: 2rem;
+  }
+  
+  .estatistica {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .estatistica i {
+    font-size: 1.8rem;
+    color: #0571d3;
+  }
+  
+  .estatistica span {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .estatistica small {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  .abas {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    border-bottom: 2px solid #0571d3;
+    margin-bottom: 1.5rem;
+  }
+  
+  .aba {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    border-bottom: 4px solid transparent;
+    cursor: pointer;
+    font-weight: bold;
+    color: #666;
+    transition: all 0.3s ease;
+  }
+  
+  .aba.ativa {
+    color: #0571d3;
+    border-bottom-color: #0571d3;
+  }
+  
+  .conteudo-abas {
+    width: 100%;
+    max-width: 1200px;
+  }
+  
+  .conteudo-aba {
+    display: none;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  
+  .conteudo-aba.ativa {
+    display: block;
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .conquistas-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .conquista {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .conquista:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .conquista i {
+    font-size: 2.5rem;
+    color: #ffc107;
+    margin-bottom: 1rem;
+  }
+  
+  .conquista h3 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .conquista p {
+    color: #666;
+    font-size: 0.8rem;
+  }
+  
+  .conquista.bloqueada {
+    opacity: 0.5;
+  }
+  
+  .conquista.bloqueada i {
+    color: #ccc !important;
+  }
+  
+  .filtros-historico {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .filtros-historico select {
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #333;
+  }
+  
+  .timeline-historico {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 1rem;
+  }
+  
+  .item-historico {
+    background-color: white;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #0571d3;
+    border-radius: 0 8px 8px 0;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .item-historico:hover {
+    transform: translateX(5px);
+  }
+  
+  .item-historico.tarefa {
+    border-left-color: #28a745;
+  }
+  
+  .item-historico.presente {
+    border-left-color: #ffc107;
+  }
+  
+  .item-historico.nivel {
+    border-left-color: #dc3545;
+  }
+  
+  .data-historico {
+    color: #666;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .titulo-historico {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .conquista-info {
+    color: #0571d3;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .config-item {
+    margin-bottom: 1.5rem;
+  }
+  
+  .config-item label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .config-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #0571d3;
+  }
+  
+  .btn-sair {
+    width: 100%;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #dc3545;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-sair:hover {
+    background-color: #f1f1f1;
+  }
+  
+
+  @media (max-width: 768px) {
+
+    .logo{
+    align-items: center;
+    flex-direction: column;
+    display: flex;
+    margin: 20px 5px;
+    background-color: #ffffff;
+    width: 380px;
+    border-radius: 20px;
+    color: #333;
+  }
+
+    .conquista {
+      position: relative;
+      text-align: center;
+      padding: 15px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      margin: 1px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      width: 126px;
+      display: inline-block;
+      vertical-align: top;
+  }
+
+    .emblema-nivel {
+      width: 100px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 5px;
+  }
+    .container-perfil {
+      padding: 1rem;
+    }
+    
+    .info-usuario {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .estatisticas-rapidas {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .abas {
+      flex-direction: column;
+      border-bottom: none;
+    }
+    
+    .aba {
+      border-bottom: none;
+      border-left: 4px solid transparent;
+    }
+    
+    .aba.ativa {
+      border-left-color: #0571d3;
+    }
+    
+    .conquistas-container {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .conquistas-container {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }

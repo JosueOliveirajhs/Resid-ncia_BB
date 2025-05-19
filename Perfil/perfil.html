@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Perfil</title>
+  <link rel="stylesheet" href="perfil.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" href="../assets/logo.jpg" type="image/x-icon" />
+</head>
+
+<body>
+  <div class="container-perfil">
+    <header class="perfil-header">
+      <a href="../index.html" class="btn-voltar"><i class="fas fa-arrow-left"></i></a>
+      <h1>Meu Perfil</h1>
+      <div class="espaco-icone"></div>
+    </header>
+
+    <section class="info-usuario">
+      <div class="avatar-container">
+        <img src="../assets/foto_perfil.png" class="foto_perfil" alt="">
+        <div class="nivel-usuario">
+          <span>Foto de perfil</span>
+        </div>
+      </div>
+
+      <div class="dados-usuario">
+        <h2>José Ferreira</h2>
+        <p><i class="fas fa-envelope"></i> jose.ferreira@email.com</p>
+        <p><i class="fas fa-calendar-alt"></i> Membro desde: 15/03/2023</p>
+      </div>
+    </section>
+    <div class="logo">
+    <img class="avatar">
+    <span>Progresso semanal</span>
+   </div>
+    <div class="weekly-progress" data-progress="0% concluído">
+    </div>
+    <section class="estatisticas-rapidas">
+      <div class="estatistica">
+        <i class="fas fa-tasks"></i>
+        <div>
+          <span id="total-tarefas">0</span>
+          <small>Tarefas</small>
+        </div>
+      </div>
+      <div class="estatistica">
+        <i class="fas fa-medal"></i>
+        <div>
+          <span id="total-conquistas">0</span>
+          <small>Conquistas</small>
+        </div>
+      </div>
+      <div class="estatistica">
+        <i class="fas fa-fire"></i>
+        <div>
+          <span id="dias-sequencia">7</span>
+          <small>Dias seguidos</small>
+        </div>
+      </div>
+    </section>
+
+    <div class="abas">
+      <button class="aba ativa" data-aba="conquistas">Conquistas</button>
+      <button class="aba" data-aba="historico">Histórico</button>
+      <button class="aba" data-aba="config">Configurações</button>
+    </div>
+
+    <div class="conteudo-abas">
+      <div id="conquistas" class="conteudo-aba ativa">
+        
+        <div class="conquistas-container">
+        </div>
+      </div>
+
+      <div id="historico" class="conteudo-aba">
+        <div class="filtros-historico">
+          <select id="filtro-mes">
+            <option value="todos">Todos os meses</option>
+          </select>
+        </div>
+        <div class="timeline-historico" id="timeline-historico">
+        </div>
+      </div>
+
+      <div id="config" class="conteudo-aba">
+        <div class="config-item">
+          <label for="notificacoes">Notificações</label>
+          <input type="checkbox" id="notificacoes" checked>
+        </div>
+        <button class="btn-sair">
+          <i class="fas fa-sign-out-alt"></i> Sair da conta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="perfil.js"></script>
+
+</body>
+
+</html>

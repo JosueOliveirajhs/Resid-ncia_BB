@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="icon" href="assets/logo.jpg" type="image/x-icon" />
+  <title>Dashboard</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="left-side">
+      <div class="perfil">
+        <img class="foto_perfil" src="assets/foto_perfil.png" alt="Foto de perfil" title="Foto de perfil" />
+        <h2 title="Nome de usuário">Olá, José!</h2>
+        <h6> Seja bem vindo!</h6>
+      </div>
+      <nav class="navegacao">
+        <a href="index.html"><i id="icones" class="fa-solid fa-upload"></i> Subir arquivos</a>
+        <a href="#" title="Você está aqui"><i class="fa-solid fa-folder-open"></i>Tarefas da semana </a>
+        <a href="#"><svg xmlns="http://www.w3.org/2000/svg" id="icones" width="16" height="16" fill="currentColor"
+            class="bi bi-bell-fill" viewBox="0 0 16 16">
+            <path
+              d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+          </svg> Notificação</a>
+        <a href="#"> <svg xmlns="http://www.w3.org/2000/svg" id="icones" width="16" height="16" fill="currentColor"
+            class="bi bi-graph-up-arrow" viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+              d="M0 0h1v15h15v1H0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5" />
+          </svg>Investimentos</a>
+
+      </nav>
+    </div>
+
+    <div class="right-side">
+      <header class="weekly-progress-header">
+        <div class="header-links">
+          <a href="#"><i class="fa-solid fa-house"></i></a>
+          <a href="Perfil/perfil.html" title="Acessar perfil de usuário"><i class="fa-solid fa-user"></i></a>
+          <a href="#"><i class="fa-solid fa-gears"></i></a>
+
+        </div>
+        <div id="emblemas-container"></div>
+        <div class="weekly-progress" data-progress="0% concluído" title="Progresso semanal">
+          <img id="weekly-progress-icon" src="assets/logo_0.png" alt="Progresso Semanal">
+        </div>
+      </header>
+
+      <div class="right-side-uper">
+        <div class="progress-bar">
+          <div class="progress-wrapper">
+            <progress id="barraProgresso" value="0" max="100" title="Progresso diário"></progress>
+            <div><img class="progressImagens presente" data-index="0" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
+            <div><img class="progressImagens presente" data-index="1" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
+            <div><img class="progressImagens presente" data-index="2" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-side-lower">
+        <div class="quests">
+          <div class="dropdown-container">
+            <button class="dropdown-button" title="Acessar tarefas da semana" onclick="toggleDropdown('tasksDropdown')">
+              <h3>Tarefas em andamento</h3>
+              <img class="logo" src="assets/logo.jpg" alt="">
+            </button>
+            <div class="dropdown-content" id="tasksDropdown" title="Tarefas diárias">
+              <div class="questsInAndament">
+                <label class="checkbox-task">
+                  <input type="checkbox" onchange="concluirTarefa(this, 0)" />
+                  <span>Implementar login</span>
+                </label>
+
+                <label class="checkbox-task">
+                  <input type="checkbox" onchange="concluirTarefa(this, 1)" />
+                  <span>Criar API de usuários</span>
+                </label>
+
+                <label class="checkbox-task">
+                  <input type="checkbox" onchange="concluirTarefa(this, 2)" />
+                  <span>Estilizar dashboard</span>
+                </label>
+
+                <label class="checkbox-task">
+                  <input type="checkbox" onchange="concluirTarefa(this, 3)" />
+                  <span>Configurar banco de dados</span>
+                </label>
+
+                <label class="checkbox-task">
+                  <input type="checkbox" onchange="concluirTarefa(this, 4)" />
+                  <span>Desenvolver sistema de notificações</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-side-history">
+          <div class="questsHistory" id="questsHistory" title="Acesse o perfil para mais detalhes">
+            <h3>Prévia do histórico de tarefas</h3>
+            <ul class="history-list">
+              <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                </svg> 10/04/2025 - Finalizado layout responsivo da página inicial</li>
+              <li> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                </svg> 12/04/2025 - Integração com banco de dados concluída</li>
+              <li> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                </svg> 15/04/2025 - Reunião de apnhamento com stakeholders</li>
+              <li> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                  class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                  <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                </svg> 18/04/2025 - Correções de bugs na interface de usuário</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="grafico">
+        <img src="assets/Grafico.jpeg" title="Grafico de progresso" alt="">
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
