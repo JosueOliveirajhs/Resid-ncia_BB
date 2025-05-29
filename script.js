@@ -7,6 +7,13 @@ const config = {
     { nome: "4: Arara-vermelha-grande", img: 'assets/logo_80.png', meta: 4 },
     { nome: "5: Mico-leão-dourado", img: 'assets/logo_100.png', meta: 5 }
   ],
+   bannersNivel: [
+    { nivel: 1, img: 'assets/Banner_Nivel1.png', desbloqueado: false, mostrado: false },
+    { nivel: 2, img: 'assets/Banner_Nivel2.png', desbloqueado: false, mostrado: false },
+    { nivel: 3, img: 'assets/Banner_Nivel3.png', desbloqueado: false, mostrado: false },
+    { nivel: 4, img: 'assets/Banner_Nivel4.png', desbloqueado: false, mostrado: false },
+    { nivel: 5, img: 'assets/Banner_Nivel5.png', desbloqueado: false, mostrado: false }
+  ],
   emblemasNivel: [
     { nivel: 1, img: 'assets/Emblema_Nivel1.png', desbloqueado: false, mostrado: false },
     { nivel: 2, img: 'assets/Emblema_Nivel2.png', desbloqueado: false, mostrado: false },
@@ -87,7 +94,6 @@ function init() {
   }
 }
 
-
 function renderizarEmblemasFixos() {
   const container = document.getElementById('emblemasFixosContainer');
   if (!container) return;
@@ -102,6 +108,7 @@ function renderizarEmblemasFixos() {
   if (emblemaParaMostrar) {
     const emblemaElement = document.createElement('div');
     emblemaElement.className = 'emblema-fixo desbloqueado';
+    emblemaElement.style.cursor = 'pointer'; // Torna clicável
     
     // Obtém o nome do nível correspondente
     const nivelInfo = config.niveis.find(n => n.meta === emblemaParaMostrar.nivel);
@@ -112,12 +119,19 @@ function renderizarEmblemasFixos() {
       <span class="emblema-nivel">Nível ${emblemaParaMostrar.nivel}</span>
     `;
     
+    // Adiciona evento de clique
+    emblemaElement.addEventListener('click', () => {
+      mostrarAlertaNivel(emblemaParaMostrar.nivel);
+    });
+    
     container.appendChild(emblemaElement);
     
     // Garante que este emblema está marcado como mostrado
     emblemaParaMostrar.mostrado = true;
   }
 }
+
+
 
 function renderizarMedalhas() {
   const container = document.getElementById('medalhasContainer');
@@ -167,14 +181,23 @@ function renderizarNiveis() {
   });
 }
 
+
 function mostrarAlertaNivel(nivel) {
   let nivelInfo;
   
   if (nivel === 0) {
-    nivelInfo = { nome: "0: Iniciante", meta: 0 };
+    nivelInfo = { 
+      nome: "0: Iniciante", 
+      img: '../assets/logo_0.png',
+      meta: 0,
+      banner: null // Não tem banner para iniciante
+    };
   } else {
     nivelInfo = config.niveis.find(n => n.meta === nivel);
     if (!nivelInfo) return;
+    
+    // Encontra o emblema (banner) correspondente ao nível
+    nivelInfo.banner = config.bannersNivel.find(e => e.nivel === nivel)?.img || null;
   }
 
   Swal.fire({
@@ -184,18 +207,28 @@ function mostrarAlertaNivel(nivel) {
         <h1 style="color: #2B3674; font-size: 2rem; margin: 0 0 15px 0; text-align: center; font-weight: bold; line-height: 1.3;">
           Seu nível Atual:
         </h1>
-        <div style="text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #2B3674;">
-          ${nivel === 0 ? 'NÍVEL INICIANTE' : `NIVEL ${nivel}`}<br>
-          ${nivelInfo.nome.split(': ')[1]}
+        <div style="text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: ${nivelInfo.banner ? '10px' : '20px'}; color: #2B3674;">
+          ${nivel === 0 ? 'NÍVEL INICIANTE' : `NÍVEL ${nivel}`}
         </div>
+        
+        ${nivelInfo.banner ? `
+          <!-- Banner do nível -->
+          <div style="text-align: center; margin: 0 auto 20px auto; max-width: 100%;">
+            <img src="${nivelInfo.banner}" style="max-width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; border: none;">
+          </div>
+        ` : ''}
+        
         <div style="text-align: center; font-size: 1rem; line-height: 1.6; color: #2B3674; margin: 20px 0 20px 0;">
           ${nivel === 0 ? 
             'Complete tarefas para começar sua jornada e evoluir de nível!' : 
-            'Cada vez que você preenche toda a logo com tarefas concluídas, sobe um nível.<br>Continue evoluindo e mostre sua dedicação.'}
+            'Cada vez que você preenche toda a logo com tarefas concluídas, sobe um nível! Continue evoluindo e mostre sua dedicação.'}
         </div>
       </div>
     `,
+    showConfirmButton: true,
     confirmButtonText: 'OK',
+    showCancelButton: nivel > 0, // Mostra apenas se não for iniciante
+    cancelButtonText: 'Ver todos os Níveis',
     showCloseButton: false,
     width: '600px',
     padding: '20px',
@@ -203,7 +236,19 @@ function mostrarAlertaNivel(nivel) {
     customClass: {
       popup: 'swal-custom-popup',
       title: 'swal-custom-title',
-      htmlContainer: 'swal-custom-html'
+      htmlContainer: 'swal-custom-html',
+      confirmButton: 'swal-confirm-button',
+      cancelButton: 'swal-cancel-button'
+    },
+    didOpen: () => {
+      // Adiciona evento ao botão "Ver todos os Níveis"
+      const cancelButton = document.querySelector('.swal-cancel-button');
+      if (cancelButton) {
+        cancelButton.addEventListener('click', () => {
+          Swal.close();
+          mostrarTodosOsNiveis();
+        });
+      }
     }
   });
 }
