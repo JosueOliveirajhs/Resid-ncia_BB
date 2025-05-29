@@ -75,22 +75,18 @@ const weeklyProgressIcon = document.getElementById('weekly-progress-icon');
 
 function init() {
   carregarProgresso();
-  
-  // Verifica se precisa mostrar algum emblema
-  if (state.nivelAtual && state.nivelAtual.meta > 0) {
-    const emblema = config.emblemasNivel.find(e => e.nivel === state.nivelAtual.meta);
-    if (emblema) {
-      emblema.desbloqueado = true;
-      emblema.mostrado = true;
-    }
-  }
-  
   setupEventListeners();
   atualizarUI();
   verificarEmblemasCarregados();
   criarMarcadoresBarraProgresso();
   renderizarEmblemasFixos();
+  
+  // Mostra o nível inicial se for a primeira vez
+  if (state.semanasCompletas === 0 && state.tarefasConcluidasNaSemana === 0) {
+    mostrarAlertaNivel(0);
+  }
 }
+
 
 function renderizarEmblemasFixos() {
   const container = document.getElementById('emblemasFixosContainer');
@@ -171,21 +167,15 @@ function renderizarNiveis() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  carregarProgresso();
-  
-  setTimeout(() => {
-    state.progressoAtual = 45;
-    state.nivelAtual = config.niveis[1];
-    state.medalhasProgresso['medalha-fundador'].atual = 3;
-    state.medalhasProgresso['medalha-fundador'].completo = false;
-    atualizarUI();
-  }, 1000);
-});
-
 function mostrarAlertaNivel(nivel) {
-  const nivelInfo = config.niveis.find(n => n.meta === nivel);
-  if (!nivelInfo) return;
+  let nivelInfo;
+  
+  if (nivel === 0) {
+    nivelInfo = { nome: "0: Iniciante", meta: 0 };
+  } else {
+    nivelInfo = config.niveis.find(n => n.meta === nivel);
+    if (!nivelInfo) return;
+  }
 
   Swal.fire({
     title: '',
@@ -195,12 +185,13 @@ function mostrarAlertaNivel(nivel) {
           Seu nível Atual:
         </h1>
         <div style="text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #2B3674;">
-          NIVEL ${nivel}<br>
+          ${nivel === 0 ? 'NÍVEL INICIANTE' : `NIVEL ${nivel}`}<br>
           ${nivelInfo.nome.split(': ')[1]}
         </div>
         <div style="text-align: center; font-size: 1rem; line-height: 1.6; color: #2B3674; margin: 20px 0 20px 0;">
-          Cada vez que você preenche toda a logo com tarefas concluídas, sobe um nível.<br>
-          Continue evoluindo e mostre sua dedicação.
+          ${nivel === 0 ? 
+            'Complete tarefas para começar sua jornada e evoluir de nível!' : 
+            'Cada vez que você preenche toda a logo com tarefas concluídas, sobe um nível.<br>Continue evoluindo e mostre sua dedicação.'}
         </div>
       </div>
     `,
@@ -384,10 +375,16 @@ function carregarProgresso() {
     try {
       const dados = JSON.parse(salvo);
       
-      // Atualiza primeiro o state
+      // Verifica se é um novo usuário (sem progresso salvo)
+      if (!dados.semanasCompletas && dados.semanasCompletas !== 0) {
+        resetarParaEstadoInicial();
+        return;
+      }
+      
+      // Atualiza o state com os dados salvos
       Object.assign(state, dados);
       
-      // Depois atualiza os emblemas no config com os dados salvos
+      // Atualiza os emblemas no config
       if (dados.emblemasNivel) {
         dados.emblemasNivel.forEach(emblemaSalvo => {
           const emblema = config.emblemasNivel.find(e => e.nivel === emblemaSalvo.nivel);
@@ -398,29 +395,52 @@ function carregarProgresso() {
         });
       }
 
-      // Garante que medalhasProgresso existe
-      if (!state.medalhasProgresso) {
-        state.medalhasProgresso = {
-          'medalha-fundador': { atual: 0, completo: false },
-          'medalha-construtor': { atual: 0, completo: false },
-          'medalha-estabilidade': { atual: 0, completo: false }
-        };
-      }
-
-      if (state.medalhaAtual === undefined) {
-        state.medalhaAtual = 0;
-      }
-
+      // Garante valores padrão se não existirem
       state.nivelAtual = obterNivelAtual(state.semanasCompletas);
-      state.nivelAnterior = state.nivelAtual;
-      state.ultimoProgressoVerificado = state.progressoAtual;
+      state.nivelAnterior = state.nivelAtual || { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
+      state.ultimoProgressoVerificado = state.progressoAtual || 0;
+      
       verificarMarcos();
     } catch (e) {
       console.error("Erro ao carregar progresso:", e);
-      localStorage.removeItem('progressoBB');
+      resetarParaEstadoInicial();
     }
+  } else {
+    // Primeiro acesso - estado inicial
+    resetarParaEstadoInicial();
   }
 }
+
+function resetarParaEstadoInicial() {
+  state.progressoAtual = 0;
+  state.tarefasConcluidas = Array(5).fill(false);
+  state.presentesDesbloqueados = [false, false, false];
+  state.presentesAbertos = [false, false, false];
+  state.semanaAtual = 0;
+  state.semanasCompletas = 0;
+  state.tarefasConcluidasNaSemana = 0;
+  state.nivelAtual = { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
+  state.nivelAnterior = null;
+  state.ultimoProgressoVerificado = 0;
+  state.diasConsecutivos = 0;
+  state.ultimoDiaAtividade = null;
+  state.emblemasSemanaisDesbloqueados = [];
+  state.medalhaAtual = 0;
+  state.medalhasProgresso = {
+    'medalha-fundador': { atual: 0, completo: false },
+    'medalha-construtor': { atual: 0, completo: false },
+    'medalha-estabilidade': { atual: 0, completo: false }
+  };
+  
+  // Reseta os emblemas
+  config.emblemasNivel.forEach(emblema => {
+    emblema.desbloqueado = false;
+    emblema.mostrado = false;
+  });
+  
+  salvarProgresso();
+}
+
 function salvarProgresso() {
   // Atualiza os emblemas no state antes de salvar
   state.emblemasNivel = config.emblemasNivel.map(e => ({ 
@@ -633,13 +653,20 @@ function atualizarTarefasUI() {
       </label>
     `).join('');
 }
-
 function obterNivelAtual(semanasCompletas) {
+  // Sempre começa do nível 0 se não completou nenhuma semana
+  if (semanasCompletas === 0) {
+    return { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
+  }
+  
+  // Verifica os níveis em ordem decrescente
   for (let i = config.niveis.length - 1; i >= 0; i--) {
     if (semanasCompletas >= config.niveis[i].meta) {
       return config.niveis[i];
     }
   }
+  
+  // Fallback - nunca deveria chegar aqui
   return { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
 }
 
