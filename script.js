@@ -12,10 +12,7 @@ const config = {
     { nivel: 2, img: 'assets/Emblema_Nivel2.png', desbloqueado: false, mostrado: false },
     { nivel: 3, img: 'assets/Emblema_Nivel3.png', desbloqueado: false, mostrado: false },
     { nivel: 4, img: 'assets/Emblema_Nivel4.png', desbloqueado: false, mostrado: false },
-    { nivel: 5, img: 'assets/Emblema_Nivel5.png', desbloqueado: false, mostrado: false },
-    { nivel: 6, img: 'assets/Emblema_Nivel6.png', desbloqueado: false, mostrado: false },
-    { nivel: 7, img: 'assets/Emblema_Nivel7.png', desbloqueado: false, mostrado: false },
-    { nivel: 8, img: 'assets/Emblema_Nivel8.png', desbloqueado: false, mostrado: false }
+    { nivel: 5, img: 'assets/Emblema_Nivel5.png', desbloqueado: false, mostrado: false }
   ],
   presenteMarcos: [20, 50, 75],
   recompensas: [
@@ -78,11 +75,243 @@ const weeklyProgressIcon = document.getElementById('weekly-progress-icon');
 
 function init() {
   carregarProgresso();
+  
+  // Verifica se precisa mostrar algum emblema
+  if (state.nivelAtual && state.nivelAtual.meta > 0) {
+    const emblema = config.emblemasNivel.find(e => e.nivel === state.nivelAtual.meta);
+    if (emblema) {
+      emblema.desbloqueado = true;
+      emblema.mostrado = true;
+    }
+  }
+  
   setupEventListeners();
   atualizarUI();
   verificarEmblemasCarregados();
   criarMarcadoresBarraProgresso();
+  renderizarEmblemasFixos();
 }
+
+function renderizarEmblemasFixos() {
+  const container = document.getElementById('emblemasFixosContainer');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  // Encontra o emblema mais alto desbloqueado
+  const emblemaParaMostrar = [...config.emblemasNivel]
+    .reverse()
+    .find(e => e.desbloqueado);
+  
+  if (emblemaParaMostrar) {
+    const emblemaElement = document.createElement('div');
+    emblemaElement.className = 'emblema-fixo desbloqueado';
+    
+    // Obtém o nome do nível correspondente
+    const nivelInfo = config.niveis.find(n => n.meta === emblemaParaMostrar.nivel);
+    const nomeNivel = nivelInfo ? nivelInfo.nome.split(': ')[1] : `Nível ${emblemaParaMostrar.nivel}`;
+    
+    emblemaElement.innerHTML = `
+      <img src="${emblemaParaMostrar.img}" alt="Emblema ${nomeNivel}">
+      <span class="emblema-nivel">Nível ${emblemaParaMostrar.nivel}</span>
+    `;
+    
+    container.appendChild(emblemaElement);
+    
+    // Garante que este emblema está marcado como mostrado
+    emblemaParaMostrar.mostrado = true;
+  }
+}
+
+function renderizarMedalhas() {
+  const container = document.getElementById('medalhasContainer');
+  container.innerHTML = '';
+  
+  config.recompensas.forEach((medalha, index) => {
+    const progresso = state.medalhasProgresso[medalha.id] || { atual: 0, completo: false };
+    const porcentagem = progresso.completo ? 100 : (progresso.atual / medalha.progressoMaximo) * 100;
+    
+    const medalhaCard = document.createElement('div');
+    medalhaCard.className = 'medalha-card';
+    
+    medalhaCard.innerHTML = `
+      <img src="${medalha.img}" class="medalha-img" style="opacity: ${porcentagem >= 50 ? '1' : '0.6'}">
+      <div class="medalha-nome">${medalha.mensagem.replace('Você ganhou a medalha de ', '').replace('!', '')}</div>
+      <div class="medalha-desc">Complete ${medalha.progressoMaximo} tarefas para conquistar</div>
+      <div class="medalha-status ${progresso.completo ? 'desbloqueada' : 'bloqueada'}">
+        ${progresso.completo ? 'Desbloqueada' : 'Bloqueada'}
+      </div>
+      <div class="progresso-container">
+        <div class="progresso-bar">
+          <div class="progresso-fill" style="width: ${porcentagem}%"></div>
+        </div>
+        <div class="progresso-texto">${Math.round(porcentagem)}% completo</div>
+      </div>
+    `;
+    
+    container.appendChild(medalhaCard);
+  });
+}
+
+function renderizarNiveis() {
+  const container = document.getElementById('niveisContainer');
+  container.innerHTML = '';
+  
+  config.niveis.forEach(nivel => {
+    const nivelCard = document.createElement('div');
+    nivelCard.className = `nivel-card ${state.nivelAtual.meta === nivel.meta ? 'ativo' : ''}`;
+    
+    nivelCard.innerHTML = `
+      <img src="${nivel.img}" class="nivel-img" alt="${nivel.nome}">
+      <div class="nivel-nome">${nivel.nome}</div>
+      <div class="nivel-meta">Meta: ${nivel.meta} semana${nivel.meta !== 1 ? 's' : ''}</div>
+    `;
+    
+    container.appendChild(nivelCard);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  carregarProgresso();
+  
+  setTimeout(() => {
+    state.progressoAtual = 45;
+    state.nivelAtual = config.niveis[1];
+    state.medalhasProgresso['medalha-fundador'].atual = 3;
+    state.medalhasProgresso['medalha-fundador'].completo = false;
+    atualizarUI();
+  }, 1000);
+});
+
+function mostrarAlertaNivel(nivel) {
+  const nivelInfo = config.niveis.find(n => n.meta === nivel);
+  if (!nivelInfo) return;
+
+  Swal.fire({
+    title: '',
+    html: `
+      <div style="flex: 1;">
+        <h1 style="color: #2B3674; font-size: 2rem; margin: 0 0 15px 0; text-align: center; font-weight: bold; line-height: 1.3;">
+          Seu nível Atual:
+        </h1>
+        <div style="text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #2B3674;">
+          NIVEL ${nivel}<br>
+          ${nivelInfo.nome.split(': ')[1]}
+        </div>
+        <div style="text-align: center; font-size: 1rem; line-height: 1.6; color: #2B3674; margin: 20px 0 20px 0;">
+          Cada vez que você preenche toda a logo com tarefas concluídas, sobe um nível.<br>
+          Continue evoluindo e mostre sua dedicação.
+        </div>
+      </div>
+    `,
+    confirmButtonText: 'OK',
+    showCloseButton: false,
+    width: '600px',
+    padding: '20px',
+    background: '#fff',
+    customClass: {
+      popup: 'swal-custom-popup',
+      title: 'swal-custom-title',
+      htmlContainer: 'swal-custom-html'
+    }
+  });
+}
+
+function Informacoes() {
+  Swal.fire({
+    title: '',
+    html: `
+    <div style="flex: 1;">
+            <h1 style="color: #2B3674; font-size: 2rem; margin: 0 0 15px 0; text-align: center; font-weight: bold; line-height: 1.3;">
+             Mostre seu progresso!
+            </h1>
+    <div style="right: 20px; bottom: 20px;">
+        <img src="assets/balao_surpresa.png" style="width: 100px; opacity: 0.8;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="160" height="100" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+</svg>
+        <img src="assets/presente_colorido.png" style="width: 100px; opacity: 0.8;">
+      </div>
+      <div style="text-align: center; font-size: 1rem; line-height: 1.6; color: #2B3674; margin: 20px 0 20px 0;">
+        Conclua suas tarefas da semana e veja sua<br>
+        barra de progresso encher! No final da jornada,<br>
+        um presente surpresa vai ser desbloqueado!
+      </div>
+      
+    `,
+    confirmButtonText: 'OK',
+    width: '600px',
+    padding: '20px',
+    background: '#fff',
+    showConfirmButton: true,
+    showCloseButton: false,
+    customClass: {
+      popup: 'swal-custom-popup',
+      title: 'swal-custom-title',
+      htmlContainer: 'swal-custom-html'
+    }
+  });
+}
+
+window.Informacoes = Informacoes;
+
+function Logo() {
+  const progresso = Math.round((state.tarefasConcluidasNaSemana / tarefasPorSemana[state.semanaAtual].length) * 100);
+  const logoAtual = state.nivelAtual.img || 'assets/logo_0.png';
+
+  Swal.fire({
+    title: '',
+    html: `
+      <div style="font-family: Arial, sans-serif; width: 550px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="display: flex; gap: 20px;">
+          <div style="flex: 0 0 200px;">
+            <img src="${logoAtual}" style="width: 200px; height: 200px; object-fit: contain; border: 3px solid rgba(8, 44, 99, 0.73);">
+          </div>
+        
+          <div style="flex: 1;">
+            <h1 style="color: #2B3674; font-size: 1.3rem; margin: 0 0 15px 0; text-align: center; font-weight: bold; line-height: 1.3;">
+              Sua produtividade dá vida à logo!
+            </h1>
+            
+            <p style="color: #2B3674; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; text-align: center;">
+              A cada semana concluída, uma parte da logo ganha cor. Complete todas as tarefas para manter a logo totalmente colorida!
+              <br><br>
+              E sempre que completar a barra de progresso, você sobe de nível 🥳
+            </p>
+            
+            <div style="font-weight: bold; text-align: center; margin-bottom: 15px; font-size: 0.95rem; color: #2B3674;">
+              Seu nível atual é ${state.nivelAtual.nome}
+            </div>
+            
+            <div style="text-align: center;">
+              <button id="okButton" style="background: #0571d3; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.9rem;">
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+    showConfirmButton: false,
+    width: 'auto',
+    padding: '0',
+    background: 'transparent',
+    customClass: {
+      popup: 'swal-logo-popup',
+      htmlContainer: 'swal-logo-html'
+    },
+    didOpen: () => {
+      const okButton = document.getElementById('okButton');
+      if (okButton) {
+        okButton.addEventListener('click', () => {
+          Swal.close();
+        });
+      }
+    }
+  });
+}
+
+window.Logo = Logo;
 
 function criarMarcadoresBarraProgresso() {
   if (!progressoContainer) return;
@@ -90,9 +319,9 @@ function criarMarcadoresBarraProgresso() {
 
   const medalha = config.recompensas[state.medalhaAtual];
   const progresso = state.medalhasProgresso[medalha.id] || { atual: 0, completo: false };
-  
+
   const porcentagem = progresso.completo ? 100 : (progresso.atual / medalha.progressoMaximo) * 100;
-  
+
   const marcador = document.createElement('div');
   marcador.className = 'marcador-recompensa';
   marcador.style.left = `${medalha.posicaoBarra}%`;
@@ -106,31 +335,38 @@ function criarMarcadoresBarraProgresso() {
   marcador.appendChild(img);
   progressoContainer.appendChild(marcador);
 }
+function verificarEmblemasNivel() {
+  const nivelAtual = state.nivelAtual.meta;
 
-function verificarEmblemasCarregados() {
+
   config.emblemasNivel.forEach(emblema => {
-    if (emblema.desbloqueado && !emblema.mostrado) {
-      mostrarEmblemaHeader(emblema);
+    if (nivelAtual >= emblema.nivel) {
+      emblema.desbloqueado = true;
     }
   });
+
+  const emblemaAtual = config.emblemasNivel.find(e => e.nivel === nivelAtual);
+  if (emblemaAtual) {
+    mostrarEmblemaHeader(emblemaAtual);
+  }
 }
 
 function mostrarEmblemaHeader(emblema) {
-  const emblemaEl = document.createElement('img');
-  emblemaEl.src = emblema.img;
-  emblemaEl.className = 'emblema-notificacao';
-  emblemaEl.title = 'Novo emblema desbloqueado! Clique para ver.';
-
-  emblemaEl.addEventListener('click', () => {
-    window.location.href = 'Perfil/perfil.html#conquistas';
-    emblemaEl.remove();
-    emblema.mostrado = true;
-    salvarProgresso();
+  config.emblemasNivel.forEach(e => e.mostrado = false);
+  
+  emblema.mostrado = true;
+  salvarProgresso();
+  renderizarEmblemasFixos();
+  
+  Swal.fire({
+    title: `Emblema Desbloqueado! 🎉`,
+    html: `<p>Você desbloqueou o emblema do Nível ${emblema.nivel}!</p>
+          <img src="${emblema.img}" style="width: 150px; margin: 15px auto;">`,
+    icon: 'success',
+    confirmButtonText: 'Continuar evoluindo!'
   });
-
-  document.body.appendChild(emblemaEl);
-  new Audio('assets/notification.mp3').play().catch(e => console.log("Audio error:", e));
 }
+
 
 function verificarEmblemasNivel() {
   const nivelAtual = state.nivelAtual.meta;
@@ -142,14 +378,27 @@ function verificarEmblemasNivel() {
     }
   });
 }
-
 function carregarProgresso() {
   const salvo = localStorage.getItem('progressoBB');
   if (salvo) {
     try {
       const dados = JSON.parse(salvo);
+      
+      // Atualiza primeiro o state
       Object.assign(state, dados);
+      
+      // Depois atualiza os emblemas no config com os dados salvos
+      if (dados.emblemasNivel) {
+        dados.emblemasNivel.forEach(emblemaSalvo => {
+          const emblema = config.emblemasNivel.find(e => e.nivel === emblemaSalvo.nivel);
+          if (emblema) {
+            emblema.desbloqueado = emblemaSalvo.desbloqueado;
+            emblema.mostrado = emblemaSalvo.mostrado;
+          }
+        });
+      }
 
+      // Garante que medalhasProgresso existe
       if (!state.medalhasProgresso) {
         state.medalhasProgresso = {
           'medalha-fundador': { atual: 0, completo: false },
@@ -157,11 +406,11 @@ function carregarProgresso() {
           'medalha-estabilidade': { atual: 0, completo: false }
         };
       }
-      
+
       if (state.medalhaAtual === undefined) {
         state.medalhaAtual = 0;
       }
-      
+
       state.nivelAtual = obterNivelAtual(state.semanasCompletas);
       state.nivelAnterior = state.nivelAtual;
       state.ultimoProgressoVerificado = state.progressoAtual;
@@ -172,8 +421,15 @@ function carregarProgresso() {
     }
   }
 }
-
 function salvarProgresso() {
+  // Atualiza os emblemas no state antes de salvar
+  state.emblemasNivel = config.emblemasNivel.map(e => ({ 
+    nivel: e.nivel, 
+    img: e.img, 
+    desbloqueado: e.desbloqueado, 
+    mostrado: e.mostrado 
+  }));
+  
   const dadosParaSalvar = {
     semanasCompletas: state.semanasCompletas,
     semanaAtual: state.semanaAtual,
@@ -184,13 +440,14 @@ function salvarProgresso() {
     tarefasConcluidas: state.tarefasConcluidas,
     tarefasConcluidasNaSemana: state.tarefasConcluidasNaSemana,
     ultimoProgressoVerificado: state.ultimoProgressoVerificado,
-    emblemasNivel: config.emblemasNivel.map(e => ({ ...e })),
+    emblemasNivel: state.emblemasNivel,
     emblemasSemanaisDesbloqueados: [...state.emblemasSemanaisDesbloqueados],
     diasConsecutivos: state.diasConsecutivos,
     ultimoDiaAtividade: state.ultimoDiaAtividade,
     medalhaAtual: state.medalhaAtual,
     medalhasProgresso: { ...state.medalhasProgresso }
   };
+  
   localStorage.setItem('progressoBB', JSON.stringify(dadosParaSalvar));
   window.dispatchEvent(new CustomEvent('progressoAtualizado'));
 }
@@ -209,6 +466,7 @@ function atualizarUI() {
   atualizarPresentes();
   atualizarTarefasUI();
   criarMarcadoresBarraProgresso();
+  renderizarEmblemasFixos();
 }
 
 function registrarAtividade(tipo, descricao, emblema = null) {
@@ -274,16 +532,16 @@ function atualizarProgressoMedalhaAtual() {
 
     if (progresso.atual >= medalha.progressoMaximo) {
       progresso.completo = true;
-      
+
       Swal.fire({
         title: 'Medalha Completa!',
         html: `<p>${medalha.mensagem}</p>
               <img src="${medalha.img}" style="width: 200px; margin: 15px auto; opacity: 1">
               <p>Você completou 100% desta medalha!</p>`,
       });
-      
+
       registrarAtividade('medalha', `Desbloqueou medalha: ${medalha.mensagem}`, medalha);
-      
+
       if (state.medalhaAtual < config.recompensas.length - 1) {
         state.medalhaAtual++;
       } else {
@@ -334,12 +592,12 @@ function atualizarPresentes() {
         if (state.presentesAbertos[index]) {
           presente.src = config.recompensas[index].img;
           presente.classList.remove('presente-desbloqueado');
-          
+
           const medalhaId = config.recompensas[index].id;
           const progresso = state.medalhasProgresso[medalhaId] || { atual: 0, completo: false };
           const porcentagem = progresso.completo ? 100 : (progresso.atual / config.recompensas[index].progressoMaximo) * 100;
           const opacidade = progresso.completo ? 1 : 0.3 + (porcentagem / 100 * 0.7);
-          
+
           presente.style.opacity = opacidade;
           presente.title = `${config.recompensas[index].mensagem} (${Math.round(porcentagem)}%)`;
         } else {
@@ -413,7 +671,7 @@ function abrirPresente(index) {
 
 function abrirPresenteComEfeitos(index) {
   state.presentesAbertos[index] = true;
-  state.medalhaAtual = index; // Garante que a medalha atual seja a do presente aberto
+  state.medalhaAtual = index;
 
   if (presentes[index]) {
     presentes[index].src = config.recompensas[index].img;
@@ -507,7 +765,6 @@ function concluirTarefa(checkbox, index) {
     }
   });
 }
-
 
 function mostrarMensagemNovoNivel(nivel) {
   const confettiConfig = {
@@ -605,3 +862,4 @@ document.addEventListener('DOMContentLoaded', init);
 
 window.concluirTarefa = concluirTarefa;
 window.toggleDropdown = toggleDropdown;
+window.mostrarAlertaNivel = mostrarAlertaNivel;

@@ -14,7 +14,7 @@
   .container-perfil {
     width: 100%;
     min-height: 100vh;
-    background-color: #eeeded;
+    background-color: #ffffff;
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -53,11 +53,10 @@
     gap: 2rem;
     width: 100%;
     max-width: 1200px;
-    background-color: #ffffff;
     padding: 2rem;
     border-radius: 30px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 1px 1px 1px 5px rgba(0,0,0,0.1);
   }
   
   .foto_perfil{
@@ -77,9 +76,12 @@
     border-radius: 20px;
     color: #333;
   }
-  
+  .left-side {
+      display: flex;
+      width: 60%;
+    }
   .avatar {
-    margin: 10px 5px;
+    margin: 20px 5px;
     width: 120px;
     height: 120px;
     border-radius: 50%;
@@ -198,6 +200,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin: 1px 50px;
   }
   
   .estatistica i {
@@ -417,6 +420,20 @@
 
   @media (max-width: 768px) {
 
+
+    .right-side{
+      margin-top: 12px;
+    }
+    .estatistica {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 10px;
+  }
+    .left-side {
+      flex-direction: column;
+      width: 50%;
+    }
     .logo{
     align-items: center;
     flex-direction: column;
@@ -458,12 +475,14 @@
     }
     
     .estatisticas-rapidas {
-      flex-direction: column;
+      flex-direction: inline;
       gap: 1.5rem;
     }
     
     .abas {
-      flex-direction: column;
+      display: flex;
+      padding: 10px 20px;
+      margin-top: 10px;
       border-bottom: none;
     }
     
@@ -473,9 +492,9 @@
     }
     
     .aba.ativa {
-      border-left-color: #0571d3;
-    }
-    
+  color: #0571d3;
+  border-bottom: 2px solid #0571d3;
+}
     .conquistas-container {
       grid-template-columns: 1fr 1fr;
     }
