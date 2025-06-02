@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="perfil.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" href="../assets/logo.jpg" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 
 <body>
@@ -22,7 +23,8 @@
       <div class="avatar-container">
         <img src="../assets/foto_perfil.png" class="foto_perfil" alt="">
         <div class="nivel-usuario">
-          <span>Foto de perfil</span>
+          <i class="bi bi-pencil-fill"></i>
+          <span>Alterar Foto</span>
         </div>
       </div>
 
@@ -36,6 +38,7 @@
    </div>
     <div class="weekly-progress" data-progress="0% concluído">
     </div>
+    
     <section class="estatisticas-rapidas">
       <div class="left-side">
       <div class="estatistica">
@@ -63,13 +66,19 @@
       </div>
       <div class="right-side">
         <img class="avatar">
+        <div class="nivel-info">
+            <span class="numero-nivel">Nível 1</span>
+            <span class="animal-nivel">Beija-flor</span>
         </div>
+    </div>
+
     </section>
 
     <div class="abas">
       <button class="aba ativa" data-aba="conquistas">Conquistas</button>
-      <button class="aba" data-aba="historico">Histórico</button>
-      <button class="aba" data-aba="config">Configurações</button>
+      <button class="aba" data-aba="config">Níveis</button>
+      <button class="aba" data-aba="historico">Historico</button>
+
     </div>
 
     <div class="conteudo-abas">

@@ -16,32 +16,29 @@ const config = {
         { nivel: 2, img: '../assets/Banner_Nivel2.png' },
         { nivel: 3, img: '../assets/Banner_Nivel3.png' },
         { nivel: 4, img: '../assets/Banner_Nivel4.png' },
-        { nivel: 5, img: '../assets/Banner_Nivel5.png' },
-        { nivel: 6, img: '../assets/Banner_Nivel6.png' },
-        { nivel: 7, img: '../assets/Banner_Nivel7.png' },
-        { nivel: 8, img: '../assets/Banner_Nivel8.png' }
+        { nivel: 5, img: '../assets/Banner_Nivel5.png' }
     ],
     emblemasSemanais: [
         [
-            { id: 'semana1-1', img: '../assets/Medalha_Fundador.png', semana: 1, titulo: "Fundador", descricao: "Concluiu todas as tarefas da semana 1" },
-            { id: 'semana1-2', img: '../assets/Medalha_Construtor.png', semana: 1, titulo: "Construtor", descricao: "Concluiu 3 tarefas na semana 1" },
-            { id: 'semana1-3', img: '../assets/Medalha_Estabilidade.png', semana: 1, titulo: "Estabilidade", descricao: "Concluiu tarefas por 3 dias consecutivos" }
+            { id: 'semana1-1', img: '../Medalhas/Fundador_5.jpeg', semana: 1, titulo: "Fundador", descricao: "Concluiu todas as tarefas da semana 1" },
+            { id: 'semana1-2', img: '../Medalhas/Construtor_5.jpeg', semana: 1, titulo: "Construtor", descricao: "Concluiu 3 tarefas na semana 1" },
+            { id: 'semana1-3', img: '../Medalhas/Estabilidade_5.jpeg', semana: 1, titulo: "Estabilidade", descricao: "Concluiu tarefas por 3 dias consecutivos" }
         ],
         [
-            { id: 'semana2-1', img: '../assets/Medalha_Desenvolvimento.png', semana: 2, titulo: "Desenvolvimento", descricao: "Concluiu todas as tarefas da semana 2" },
-            { id: 'semana2-2', img: '../assets/Medalha_Ousadia.png', semana: 2, titulo: "Ousadia", descricao: "Concluiu tarefas difíceis na semana 2" },
-            { id: 'semana2-3', img: '../assets/Medalha_Estabilidade.png', semana: 2, titulo: "Estabilidade", descricao: "Concluiu tarefas por 5 dias consecutivos" }
+            { id: 'semana2-1', img: '../Medalhas/Desenvolvimento_5.jpeg', semana: 2, titulo: "Desenvolvimento", descricao: "Concluiu todas as tarefas da semana 2" },
+            { id: 'semana2-2', img: '../Medalhas/Ousadia_5.jpeg', semana: 2, titulo: "Ousadia", descricao: "Concluiu tarefas difíceis na semana 2" },
+            { id: 'semana2-3', img: '../Medalhas/Estabilidade_5.jpeg', semana: 2, titulo: "Estabilidade", descricao: "Concluiu tarefas por 5 dias consecutivos" }
         ],
         [
-            { id: 'semana3-1', img: '../assets/Medalha_Fundador.png', semana: 3, titulo: "Fundador", descricao: "Concluiu todas as tarefas da semana 3" },
-            { id: 'semana3-2', img: '../assets/Medalha_Construtor.png', semana: 3, titulo: "Construtor", descricao: "Concluiu 4 tarefas na semana 3" },
-            { id: 'semana3-3', img: '../assets/Medalha_Ousadia.png', semana: 3, titulo: "Ousadia", descricao: "Concluiu todas as tarefas antes do prazo" }
+            { id: 'semana3-1', img: '../Medalhas/Fundador_5.jpeg', semana: 3, titulo: "Fundador", descricao: "Concluiu todas as tarefas da semana 3" },
+            { id: 'semana3-2', img: '../Medalhas/Construtor_5.jpeg', semana: 3, titulo: "Construtor", descricao: "Concluiu 4 tarefas na semana 3" },
+            { id: 'semana3-3', img: '../Medalhas/Ousadia_5.jpeg', semana: 3, titulo: "Ousadia", descricao: "Concluiu todas as tarefas antes do prazo" }
         ]
     ],
     medalhas: [
-        { id: 'medalha-fundador', img: '../assets/Medalha_Fundador.png', titulo: "Fundador", descricao: "Complete as primeiras conquistas", progressoMaximo: 5 },
-        { id: 'medalha-construtor', img: '../assets/Medalha_Construtor.png', titulo: "Construtor", descricao: "Construa bases sólidas", progressoMaximo: 5 },
-        { id: 'medalha-estabilidade', img: '../assets/Medalha_Estabilidade.png', titulo: "Estabilidade", descricao: "Mantenha consistência", progressoMaximo: 5 }
+        { id: 'medalha-fundador', img: '../Medalhas/Fundador_5.jpeg', titulo: "Fundador", descricao: "Complete as primeiras conquistas", progressoMaximo: 5 },
+        { id: 'medalha-construtor', img: '../Medalhas/Construtor_5.jpeg', titulo: "Construtor", descricao: "Construa bases sólidas", progressoMaximo: 5 },
+        { id: 'medalha-estabilidade', img: '../Medalhas/Estabilidade_5.jpeg', titulo: "Estabilidade", descricao: "Mantenha consistência", progressoMaximo: 5 }
     ]
 };
 
