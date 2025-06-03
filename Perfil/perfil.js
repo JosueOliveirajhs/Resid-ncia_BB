@@ -6,11 +6,6 @@ const config = {
         { nome: "4: Arara-vermelha-grande", img: '../assets/logo_80.png', meta: 4, descricao: "Grande e imponente!" },
         { nome: "5: Mico-leão-dourado", img: '../assets/logo_100.png', meta: 5, descricao: "Você atingiu o nível máximo!" }
     ],
-    recompensas: [
-        { img: '../assets/prata.png', mensagem: 'Você ganhou um badge de Prata!' },
-        { img: '../assets/ouro.png', mensagem: 'Você ganhou um badge de Ouro!' },
-        { img: '../assets/balao_icon.png', mensagem: 'Você desbloqueou uma recompensa especial!' }
-    ],
     emblemasNivel: [
         { nivel: 1, img: '../assets/Banner_Nivel1.png' },
         { nivel: 2, img: '../assets/Banner_Nivel2.png' },

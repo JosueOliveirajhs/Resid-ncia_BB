@@ -137,9 +137,10 @@ const state = {
   proximaPeca: { temaIndex: 0, pecaIndex: 0 }
 };
 
+
 const progresso = document.getElementById('barraProgresso');
 const progressoContainer = document.querySelector('.progress-container');
-const presentes = document.querySelectorAll('.presente');
+const presentes = document.querySelectorAll('.progress-wrapper .presente'); // Alterado para selecionar corretamente
 const weeklyProgressIcon = document.getElementById('weekly-progress-icon');
 const quebraCabecaContainer = document.getElementById('quebraCabecaContainer');
 
@@ -149,11 +150,19 @@ function init() {
   }
 
   carregarProgresso();
+  
+  // Verificação extra para garantir que o nível está correto
+  state.nivelAtual = obterNivelAtual(state.semanasCompletas);
+  if (state.nivelAtual.meta === 5) {
+    // Garante que os emblemas do nível 5 estão desbloqueados
+    const emblemaNivel5 = config.emblemasNivel.find(e => e.nivel === 5);
+    if (emblemaNivel5) {
+      emblemaNivel5.desbloqueado = true;
+    }
+  }
+  
   setupEventListeners();
   atualizarUI();
-  criarMarcadoresBarraProgresso();
-  renderizarEmblemasFixos();
-  renderizarQuebraCabeca();
   
   if (state.nivelAtual.meta === 0) {
     mostrarAlertaNivelIniciante();
@@ -174,6 +183,7 @@ function getTemaAtual() {
   return config.temasQuebraCabecas.find(tema => tema.nome === state.temaAtual);
 }
 
+
 function resetarPresentesParaNovaSemana() {
   state.presentesDesbloqueados = [false, false, false];
   state.presentesAbertos = [false, false, false];
@@ -181,44 +191,62 @@ function resetarPresentesParaNovaSemana() {
   state.ultimoProgressoVerificado = 0;
   state.pecasResgatadasEstaSemana = [false, false, false, false];
   
-  const pecasParaDistribuir = [];
-  
-  for (let i = 0; i < 3; i++) {
-    const { temaIndex, pecaIndex } = state.proximaPeca;
+  // Se for nível iniciante, distribui peças básicas do primeiro tema
+  if (state.nivelAtual.meta === 0) {
+    const temaIndex = 0;
+    const pecasDisponiveis = [0, 1, 2].filter(i => 
+      !state.temasCompletos[config.temasQuebraCabecas[temaIndex].nome][i]
+    );
     
-    if (temaIndex < config.temasQuebraCabecas.length) {
-      const tema = config.temasQuebraCabecas[temaIndex];
-      
-      if (pecaIndex < tema.pecas.length) {
-        if (!state.temasCompletos[tema.nome][pecaIndex]) {
-          pecasParaDistribuir.push({ temaIndex, pecaIndex });
-          
-          if (pecaIndex + 1 < tema.pecas.length) {
-            state.proximaPeca.pecaIndex++;
-          } else {
-            state.proximaPeca.temaIndex++;
-            state.proximaPeca.pecaIndex = 0;
-          }
-        } else {
-          if (pecaIndex + 1 < tema.pecas.length) {
-            state.proximaPeca.pecaIndex++;
-          } else {
-            state.proximaPeca.temaIndex++;
-            state.proximaPeca.pecaIndex = 0;
-          }
-          i--;
-        }
+    config.recompensas.forEach((recompensa, i) => {
+      if (i < pecasDisponiveis.length) {
+        recompensa.temaIndex = temaIndex;
+        recompensa.pecaIndex = pecasDisponiveis[i];
       } else {
-        state.proximaPeca.temaIndex++;
-        state.proximaPeca.pecaIndex = 0;
-        i--;
+        recompensa.temaIndex = null;
+        recompensa.pecaIndex = null;
       }
-    } else {
-      state.proximaPeca = { temaIndex: 0, pecaIndex: 0 };
-      i--;
+    });
+    
+    state.presentesDesbloqueados[0] = true;
+    return;
+  }
+
+  // Para outros níveis, distribui peças de forma inteligente
+  const pecasParaDistribuir = [];
+  let tentativas = 0;
+  const maxTentativas = 100; // Prevenção contra loop infinito
+
+  while (pecasParaDistribuir.length < 3 && tentativas < maxTentativas) {
+    tentativas++;
+    
+    // Encontra todas as peças não coletadas
+    const pecasNaoColetadas = [];
+    config.temasQuebraCabecas.forEach((tema, temaIndex) => {
+      tema.pecas.forEach((_, pecaIndex) => {
+        if (!state.temasCompletos[tema.nome][pecaIndex]) {
+          pecasNaoColetadas.push({ temaIndex, pecaIndex });
+        }
+      });
+    });
+
+    // Se não há mais peças para coletar
+    if (pecasNaoColetadas.length === 0) {
+      break;
+    }
+
+    // Seleciona aleatoriamente peças não coletadas
+    const pecaAleatoria = pecasNaoColetadas[Math.floor(Math.random() * pecasNaoColetadas.length)];
+    
+    // Verifica se já não foi selecionada para esta semana
+    if (!pecasParaDistribuir.some(p => 
+      p.temaIndex === pecaAleatoria.temaIndex && p.pecaIndex === pecaAleatoria.pecaIndex
+    )) {
+      pecasParaDistribuir.push(pecaAleatoria);
     }
   }
-  
+
+  // Distribui as peças encontradas
   config.recompensas.forEach((recompensa, i) => {
     if (i < pecasParaDistribuir.length) {
       recompensa.temaIndex = pecasParaDistribuir[i].temaIndex;
@@ -228,23 +256,6 @@ function resetarPresentesParaNovaSemana() {
       recompensa.pecaIndex = null;
     }
   });
-  
-  if (state.nivelAtual.meta === 0) {
-    const temaIndex = 0;
-    const pecasIniciante = [0, 1, 2].filter(i => !state.temasCompletos[config.temasQuebraCabecas[temaIndex].nome][i]);
-    
-    config.recompensas.forEach((recompensa, i) => {
-      if (i < pecasIniciante.length) {
-        recompensa.temaIndex = temaIndex;
-        recompensa.pecaIndex = pecasIniciante[i];
-      } else {
-        recompensa.temaIndex = null;
-        recompensa.pecaIndex = null;
-      }
-    });
-    
-    state.presentesDesbloqueados[0] = true;
-  }
 }
 
 function resetarTodosQuebraCabecas() {
@@ -288,22 +299,20 @@ function renderizarQuebraCabeca() {
       spread: 100,
       origin: { y: 0.3 }
     });
-    
-    registrarAtividade('quebra-cabeca', `Completou o quebra-cabeça ${tema.nome}`, {
-      img: tema.imagemCompleta,
-      mensagem: `Você completou o quebra-cabeça ${tema.nome}!`
-    });
   }
 }
-
 function atualizarPresentes() {
-  if (!presentes) return;
+  if (!presentes || presentes.length === 0) {
+    console.error('Elementos de presente não encontrados no DOM');
+    return;
+  }
 
   presentes.forEach((presente, index) => {
     if (!presente) return;
 
-    if (state.nivelAtual.meta === 0 && index === 0) {
-      if (config.recompensas[0].pecaIndex !== null) {
+    // Verifica se está no nível iniciante (meta 0)
+    if (state.nivelAtual.meta === 0) {
+      if (index === 0 && config.recompensas[0].pecaIndex !== null) {
         presente.src = "assets/presente_iniciante.png";
         presente.classList.add('presente-desbloqueado');
         state.presentesDesbloqueados[0] = true;
@@ -315,11 +324,14 @@ function atualizarPresentes() {
     }
 
     const marcoAlcancado = state.progressoAtual >= config.presenteMarcos[index];
-    const pecaIndex = config.recompensas[index].pecaIndex;
+    const pecaDisponivel = config.recompensas[index].pecaIndex !== null;
 
-    if (marcoAlcancado && pecaIndex !== null) {
+    if (marcoAlcancado && pecaDisponivel) {
       if (state.presentesAbertos[index]) {
-        const tema = getTemaAtual();
+        const temaIndex = config.recompensas[index].temaIndex;
+        const pecaIndex = config.recompensas[index].pecaIndex;
+        const tema = config.temasQuebraCabecas[temaIndex];
+        
         if (tema && tema.pecas[pecaIndex]) {
           presente.src = tema.pecas[pecaIndex].img;
         }
@@ -334,9 +346,9 @@ function atualizarPresentes() {
       presente.classList.remove('presente-desbloqueado');
       state.presentesDesbloqueados[index] = false;
     }
-    presente.style.opacity = '1';
   });
 }
+
 
 function renderizarTodosQuebraCabecas() {
   if (!quebraCabecaContainer) return;
@@ -372,98 +384,6 @@ function renderizarTodosQuebraCabecas() {
   `;
 }
 
-function abrirPresenteComEfeitos(index) {
-  const recompensa = config.recompensas[index];
-  const marco = config.presenteMarcos[index];
-  
-  // Verifica se há uma peça de quebra-cabeça associada
-  if (recompensa.pecaIndex === null || recompensa.temaIndex === null) {
-    // Determina o nível do emblema baseado no marco
-    let nivelEmblema;
-    if (marco === 20) nivelEmblema = 1;
-    else if (marco === 50) nivelEmblema = 3;
-    else if (marco === 75) nivelEmblema = 4;
-    else nivelEmblema = 5;
-    
-    // Verifica se o nível atual permite receber este emblema
-    if (state.nivelAtual.meta >= nivelEmblema) {
-      const emblema = config.emblemasNivel.find(e => e.nivel === nivelEmblema);
-      if (emblema) {
-        emblema.desbloqueado = true;
-        emblema.mostrado = true;
-        
-        if (presentes[index]) {
-          presentes[index].src = emblema.img;
-          presentes[index].classList.remove('presente-desbloqueado');
-        }
-        
-        Swal.fire({
-          title: 'Emblema Desbloqueado!',
-          html: `<p>Você ganhou o emblema do Nível ${nivelEmblema}!</p>
-                <img src="${emblema.img}" style="width: 200px; margin: 15px auto;">`,
-          confirmButtonText: 'OK'
-        });
-        
-        registrarAtividade('emblema', `Desbloqueou o emblema do nível ${nivelEmblema}`, {
-          img: emblema.img,
-          mensagem: `Você ganhou o emblema do nível ${nivelEmblema}!`
-        });
-        
-        state.presentesAbertos[index] = true;
-        salvarProgresso();
-        atualizarUI();
-      }
-    } else {
-      Swal.fire({
-        title: 'Nível insuficiente',
-        text: `Você precisa alcançar o nível ${nivelEmblema} para receber este emblema!`,
-        icon: 'info'
-      });
-    }
-    return;
-  }
-
-  // Restante do código para peças de quebra-cabeça...
-  const tema = config.temasQuebraCabecas[recompensa.temaIndex];
-  if (!tema) return;
-
-  const pecasDesbloqueadas = state.temasCompletos[tema.nome];
-  const pecaIndex = recompensa.pecaIndex;
-
-  if (pecasDesbloqueadas[pecaIndex]) {
-    Swal.fire({
-      title: 'Peça já coletada!',
-      html: `<p>Você já coletou esta peça: ${pecaIndex + 1}</p>
-            <img src="${tema.pecas[pecaIndex].img}" style="width: 200px; margin: 15px auto;">`,
-      confirmButtonText: 'OK'
-    });
-    return;
-  }
-
-  pecasDesbloqueadas[pecaIndex] = true;
-  state.presentesAbertos[index] = true;
-  
-  if (presentes[index]) {
-    presentes[index].src = tema.pecas[pecaIndex].img;
-    presentes[index].classList.remove('presente-desbloqueado');
-  }
-
-  Swal.fire({
-    title: 'Presente Aberto!',
-    html: `<p>Você ganhou a peça ${pecaIndex + 1} do quebra-cabeça ${tema.nome}!</p>
-          <img src="${tema.pecas[pecaIndex].img}" style="width: 200px; margin: 15px auto;">`,
-    confirmButtonText: 'OK'
-  });
-
-  atualizarUI();
-  salvarProgresso();
-  
-  confetti({
-    particleCount: 150,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
-}
 
 
 function verificarConsistenciaPresentes() {
@@ -513,9 +433,12 @@ function abrirPresente(index) {
 
   if (state.presentesAbertos[index]) {
     const tema = config.temasQuebraCabecas[recompensa.temaIndex];
+    const pecaIndex = recompensa.pecaIndex;
+    
     Swal.fire({
-      title: 'Peça já coletada',
-      html: `<img src="${tema.pecas[recompensa.pecaIndex].img}" style="width:200px;margin:15px auto;">`,
+      title: 'Presente já aberto',
+      html: `<p>Você já abriu este presente e coletou a peça ${pecaIndex + 1} do quebra-cabeça ${tema.nome}.</p>
+            <img src="${tema.pecas[pecaIndex].img}" style="width:200px;margin:15px auto;">`,
       confirmButtonText: 'OK'
     });
     return;
@@ -546,10 +469,31 @@ function carregarProgresso() {
   if (salvo) {
     try {
       const dados = JSON.parse(salvo);
-      Object.assign(state, dados);
-
+      
+      // Carrega semanasCompletas primeiro
+      state.semanasCompletas = dados.semanasCompletas || 0;
+      
+      // Atualiza o nível atual baseado nas semanas completas
+      state.nivelAtual = obterNivelAtual(state.semanasCompletas);
+      
+      // Carrega o resto do estado
       Object.assign(state, dados);
       
+      // Garante que o nivelAtual está correto
+      if (dados.nivelAtual && dados.nivelAtual.meta !== undefined) {
+        state.nivelAtual = dados.nivelAtual;
+      } else {
+        state.nivelAtual = obterNivelAtual(state.semanasCompletas);
+      }
+      
+      // Atualiza temas completos se necessário
+      config.temasQuebraCabecas.forEach(tema => {
+        if (!state.temasCompletos[tema.nome]) {
+          state.temasCompletos[tema.nome] = [false, false, false, false];
+        }
+      });
+      
+      // Atualiza recompensas
       if (dados.recompensas) {
         dados.recompensas.forEach((r, i) => {
           if (config.recompensas[i]) {
@@ -559,6 +503,7 @@ function carregarProgresso() {
         });
       }
       
+      // Atualiza emblemas
       if (dados.emblemasNivel) {
         dados.emblemasNivel.forEach(emblemaSalvo => {
           const emblema = config.emblemasNivel.find(e => e.nivel === emblemaSalvo.nivel);
@@ -570,7 +515,6 @@ function carregarProgresso() {
         });
       }
 
-      state.nivelAtual = obterNivelAtual(state.semanasCompletas);
       state.nivelAnterior = state.nivelAtual || { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
       state.ultimoProgressoVerificado = state.progressoAtual || 0;
       
@@ -602,7 +546,7 @@ function resetarParaEstadoInicial() {
   state.semanasCompletas = 0;
   state.tarefasConcluidasNaSemana = 0;
   state.nivelAtual = { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
-  state.nivelAnterior = null;
+  state.nivelAnterior = null; // Inicializa como null
   state.ultimoProgressoVerificado = 0;
   state.diasConsecutivos = 0;
   state.ultimoDiaAtividade = null;
@@ -620,6 +564,12 @@ function resetarParaEstadoInicial() {
     emblema.mostrado = false;
   });
   
+  config.temasQuebraCabecas.forEach(tema => {
+    if (!state.temasCompletos[tema.nome]) {
+      state.temasCompletos[tema.nome] = [false, false, false, false];
+    }
+  });
+  
   config.recompensas.forEach(recompensa => {
     recompensa.pecaIndex = null;
     recompensa.temaIndex = null;
@@ -627,8 +577,8 @@ function resetarParaEstadoInicial() {
   
   salvarProgresso();
 }
-
 function salvarProgresso() {
+  // Atualiza emblemas no state antes de salvar
   state.emblemasNivel = config.emblemasNivel.map(e => ({ 
     nivel: e.nivel, 
     img: e.img, 
@@ -636,6 +586,9 @@ function salvarProgresso() {
     mostrado: e.mostrado,
     resgatado: e.resgatado || false
   }));
+  
+  // Garante que o nivelAtual está atualizado
+  state.nivelAtual = obterNivelAtual(state.semanasCompletas);
   
   const dadosParaSalvar = {
     semanasCompletas: state.semanasCompletas,
@@ -646,7 +599,8 @@ function salvarProgresso() {
     temasCompletos: state.temasCompletos,
     pecasResgatadasEstaSemana: state.pecasResgatadasEstaSemana,
     pecasDistribuidas: [...state.pecasDistribuidas],
-    nivelAtual: state.nivelAtual,
+    nivelAtual: state.nivelAtual, // Garante que o nível atual está sendo salvo
+    nivelAnterior: state.nivelAnterior,
     tarefasConcluidas: state.tarefasConcluidas,
     tarefasConcluidasNaSemana: state.tarefasConcluidasNaSemana,
     ultimoProgressoVerificado: state.ultimoProgressoVerificado,
@@ -680,9 +634,9 @@ function setupEventListeners() {
 function atualizarUI() {
   atualizarBarraProgresso();
   atualizarIconeHeader();
-  atualizarPresentes();
-  atualizarTarefasUI();
+  atualizarPresentes(); // Adicione esta linha
   criarMarcadoresBarraProgresso();
+  atualizarTarefasUI();
   renderizarEmblemasFixos();
   renderizarQuebraCabeca();
 }
@@ -751,9 +705,21 @@ function verificarMarcos() {
     atualizarUI();
   }
 }
+
+
 function atualizarBarraProgresso() {
-  if (progresso) {
-    progresso.value = state.progressoAtual;
+  const progressoElement = document.getElementById('barraProgresso');
+  if (!progressoElement) {
+    console.error('Elemento barraProgresso não encontrado');
+    return;
+  }
+  
+  progressoElement.value = state.progressoAtual;
+  
+  // Atualiza também o texto de progresso se existir
+  const progressoTexto = document.getElementById('progressoTexto');
+  if (progressoTexto) {
+    progressoTexto.textContent = `${state.progressoAtual}% completado`;
   }
 }
 
@@ -796,22 +762,31 @@ function atualizarTarefasUI() {
 }
 
 function obterNivelAtual(semanasCompletas) {
-  if (semanasCompletas === 0) {
-    return { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
-  }
+  // Ordena os níveis por meta (do menor para o maior)
+  const niveisOrdenados = [...config.niveis].sort((a, b) => a.meta - b.meta);
   
-  for (let i = config.niveis.length - 1; i >= 0; i--) {
-    if (semanasCompletas >= config.niveis[i].meta) {
-      return config.niveis[i];
+  // Começa com o nível iniciante
+  let nivelAtual = { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
+  
+  // Percorre os níveis para encontrar o mais alto alcançado
+  for (const nivel of niveisOrdenados) {
+    if (semanasCompletas >= nivel.meta) {
+      nivelAtual = nivel;
+    } else {
+      // Sai do loop quando encontra um nível não alcançado
+      break;
     }
   }
   
-  return { nome: "0: Iniciante", img: 'assets/logo_0.png', meta: 0 };
+  return nivelAtual;
 }
 
 function concluirTarefa(checkbox, index) {
   const nivelMaximo = config.niveis[config.niveis.length - 1];
-  if (state.semanasCompletas >= nivelMaximo.meta) {
+  const nivelAtual = obterNivelAtual(state.semanasCompletas);
+  
+  // Verifica se já atingiu o nível máximo
+  if (nivelAtual.meta >= nivelMaximo.meta) {
     Swal.fire({
       title: 'Parabéns!',
       text: 'Você já atingiu o nível máximo!',
@@ -841,20 +816,28 @@ function concluirTarefa(checkbox, index) {
       verificarMarcos();
       salvarProgresso();
       
+      // Verifica se completou todas as tarefas da semana
       if (state.tarefasConcluidasNaSemana === config.tarefasPorSemana[state.semanaAtual].length) {
-        const nivelAntes = state.nivelAtual;
+        // Incrementa semanas completas ANTES de verificar o novo nível
         state.semanasCompletas++;
-        state.nivelAtual = obterNivelAtual(state.semanasCompletas);
+        
+        // Obtém o novo nível com base nas semanas completas
+        const novoNivel = obterNivelAtual(state.semanasCompletas);
+        state.nivelAtual = novoNivel;
+        
+        // Atualiza o ícone do nível no header
         atualizarIconeHeader();
         
-        if (nivelAntes.nome !== state.nivelAtual.nome) {
-          mostrarMensagemNovoNivel(state.nivelAtual);
-          registrarAtividade('nivel', `Alcançado: ${state.nivelAtual.nome}`);
+        // Verifica se houve mudança de nível
+        if (state.nivelAnterior === null || novoNivel.meta !== state.nivelAnterior.meta) {
+          mostrarMensagemNovoNivel(novoNivel);
+          registrarAtividade('nivel', `Alcançado: ${novoNivel.nome}`);
+          state.nivelAnterior = novoNivel;
         }
         
         celebrarConclusaoSemanal();
       }
-    }  else {
+    } else {
       Swal.fire({
         title: 'Ops!',
         text: 'Você realmente deseja cancelar esta tarefa?',
@@ -1065,117 +1048,138 @@ function renderizarEmblemasFixos() {
 function criarMarcadoresBarraProgresso() {
   if (!progressoContainer) return;
   
-  // Remove todos os marcadores existentes
-  progressoContainer.querySelectorAll('.marcador-recompensa').forEach(m => m.remove());
-
   config.presenteMarcos.forEach((marco, index) => {
-    const marcador = document.createElement('div');
-    marcador.className = 'marcador-recompensa';
-    marcador.style.left = `${marco}%`;
+    const presente = presentes[index];
+    if (!presente) return;
 
-    const img = document.createElement('img');
-    img.style.width = '40px'; // Tamanho consistente
-    img.style.height = '40px';
-    
     // Se o presente foi aberto
     if (state.presentesAbertos[index]) {
       const recompensa = config.recompensas[index];
       
-      // Se tem peça de quebra-cabeça, mostra a peça
+      // Verifica se há uma peça de quebra-cabeça associada
       if (recompensa.temaIndex !== null && recompensa.pecaIndex !== null) {
         const tema = config.temasQuebraCabecas[recompensa.temaIndex];
-        img.src = tema.pecas[recompensa.pecaIndex].img;
-        img.alt = `Peça ${recompensa.pecaIndex + 1} do quebra-cabeça ${tema.nome}`;
-      } 
-      // Se não tem peça, mostra o emblema correspondente ao tema
-      else if (recompensa.temaIndex !== null) {
+        if (tema) {
+          presente.src = tema.pecas[recompensa.pecaIndex].img;
+          presente.alt = `Peça ${recompensa.pecaIndex + 1} do quebra-cabeça ${tema.nome}`;
+        }
+      } else {
+        // Mostra o emblema correspondente ao tema
         const tema = config.temasQuebraCabecas[recompensa.temaIndex];
-        // Usa a primeira peça do tema como emblema (ex: Construtor_1.png)
-        img.src = `Medalhas/${tema.nome}_1.png`;
-        img.alt = `Emblema ${tema.nome}`;
-      }
-      // Fallback (não deveria acontecer)
-      else {
-        img.src = "Medalhas/Construtor_1.png";
-        img.alt = "Emblema de Construtor";
+        if (tema) {
+          presente.src = `Medalhas/${tema.nome}_1.png`;
+          presente.alt = `Emblema ${tema.nome}`;
+        } else {
+          // Fallback para o emblema de construtor se não encontrar o tema
+          presente.src = "Medalhas/Construtor_1.png";
+          presente.alt = "Emblema de Construtor";
+        }
       }
     } 
     // Presente desbloqueado mas não aberto
     else if (state.presentesDesbloqueados[index]) {
-      img.src = "assets/presente_colorido.png";
-      img.alt = `Presente ${index + 1}`;
+      presente.src = "assets/presente_colorido.png";
+      presente.alt = `Presente ${index + 1}`;
     } 
     // Presente bloqueado
     else {
-      img.src = "assets/balao_surpresa.png";
-      img.alt = `Presente bloqueado ${index + 1}`;
+      presente.src = "assets/balao_surpresa.png";
+      presente.alt = `Presente bloqueado ${index + 1}`;
     }
-
-    marcador.appendChild(img);
-    progressoContainer.appendChild(marcador);
   });
 }
+
 function abrirPresenteComEfeitos(index) {
   const recompensa = config.recompensas[index];
   
-  // Se não tem peça de quebra-cabeça associada
+  // Verifica se há peça para resgatar
   if (recompensa.pecaIndex === null || recompensa.temaIndex === null) {
-    const tema = config.temasQuebraCabecas[recompensa.temaIndex];
-    const emblemaImg = `Medalhas/${tema.nome}_1.png`;
-    
-    if (presentes[index]) {
-      presentes[index].src = emblemaImg;
-      presentes[index].classList.remove('presente-desbloqueado');
-    }
-    
     Swal.fire({
-      title: 'Emblema Desbloqueado!',
-      html: `<p>Você ganhou o emblema de ${tema.nome}!</p>
-            <img src="${emblemaImg}" style="width: 200px; margin: 15px auto;">`,
-      confirmButtonText: 'OK'
+      title: 'Quebra-cabeça completo!',
+      text: 'Você já coletou todas as peças disponíveis!',
+      icon: 'info'
     });
-    
-    state.presentesAbertos[index] = true;
-    salvarProgresso();
-    atualizarUI();
     return;
   }
 
-  // Restante do código para peças de quebra-cabeça...
   const tema = config.temasQuebraCabecas[recompensa.temaIndex];
-  if (!tema) return;
+  if (!tema) {
+    console.error('Tema não encontrado para índice:', recompensa.temaIndex);
+    return;
+  }
+
+  // Verifica se o tema existe no state.temasCompletos
+  if (!state.temasCompletos[tema.nome]) {
+    state.temasCompletos[tema.nome] = [false, false, false, false];
+  }
 
   const pecasDesbloqueadas = state.temasCompletos[tema.nome];
   const pecaIndex = recompensa.pecaIndex;
 
+  // Verifica se o índice da peça é válido
+  if (pecaIndex < 0 || pecaIndex >= tema.pecas.length) {
+    console.error('Índice de peça inválido:', pecaIndex);
+    return;
+  }
+
+  // Verifica se a peça já foi coletada
   if (pecasDesbloqueadas[pecaIndex]) {
+    // Isso nunca deveria acontecer com a nova lógica de distribuição
+    console.warn('Tentativa de coletar peça já coletada:', tema.nome, pecaIndex);
     Swal.fire({
-      title: 'Peça já coletada!',
-      html: `<p>Você já coletou esta peça: ${pecaIndex + 1}</p>
-            <img src="${tema.pecas[pecaIndex].img}" style="width: 200px; margin: 15px auto;">`,
-      confirmButtonText: 'OK'
+      title: 'Erro inesperado',
+      text: 'Esta peça já foi coletada anteriormente.',
+      icon: 'error'
     });
     return;
   }
 
+  // Marca a peça como coletada
   pecasDesbloqueadas[pecaIndex] = true;
   state.presentesAbertos[index] = true;
+  state.pecasResgatadasEstaSemana[index] = true;
   
+  // Atualiza a imagem do presente
   if (presentes[index]) {
     presentes[index].src = tema.pecas[pecaIndex].img;
     presentes[index].classList.remove('presente-desbloqueado');
+    presentes[index].alt = `Peça ${pecaIndex + 1} do quebra-cabeça ${tema.nome}`;
   }
 
+  // Mostra mensagem de sucesso
   Swal.fire({
-    title: 'Presente Aberto!',
+    title: 'Peça Coletada!',
     html: `<p>Você ganhou a peça ${pecaIndex + 1} do quebra-cabeça ${tema.nome}!</p>
-          <img src="${tema.pecas[pecaIndex].img}" style="width: 200px; margin: 15px auto;">`,
+          <img src="${tema.pecas[pecaIndex].img}" style="width: 200px; margin: 15px auto;">
+          <p>${pecasDesbloqueadas.filter(Boolean).length} de ${tema.pecas.length} peças coletadas deste tema</p>`,
     confirmButtonText: 'OK'
   });
 
+  // Verifica se completou o quebra-cabeça
+  const todasPecasColetadas = pecasDesbloqueadas.every(Boolean);
+  if (todasPecasColetadas) {
+    setTimeout(() => {
+      Swal.fire({
+        title: 'Quebra-cabeça Completo!',
+        html: `<p>Parabéns! Você completou o quebra-cabeça ${tema.nome}!</p>
+              <img src="${tema.imagemCompleta}" style="max-width: 100%; border: 2px solid #0571d3; border-radius: 8px;">`,
+        confirmButtonText: 'OK'
+      });
+      
+      // Dispara confetti adicional para celebração
+      confetti({
+        particleCount: 300,
+        spread: 100,
+        origin: { y: 0.3 }
+      });
+    }, 1000);
+  }
+
+  // Atualiza a UI e salva o progresso
   atualizarUI();
   salvarProgresso();
   
+  // Efeitos visuais
   confetti({
     particleCount: 150,
     spread: 70,
@@ -1361,6 +1365,22 @@ function toggleDropdown(dropdownId) {
     }
   }, { once: true });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Verifica se os elementos existem antes de inicializar
+  const progresso = document.getElementById('barraProgresso');
+  const presentes = document.querySelectorAll('.presente');
+  
+  if (!progresso) {
+    console.error('Barra de progresso não encontrada no DOM');
+  }
+  
+  if (!presentes || presentes.length === 0) {
+    console.error('Ícones de presente não encontrados no DOM');
+  }
+  
+  init();
+});
 
 document.addEventListener('DOMContentLoaded', init);
 
